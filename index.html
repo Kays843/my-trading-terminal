@@ -51,31 +51,6 @@ button{
   cursor:pointer;
 }
 
-/* MODAL */
-#modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:9999;
-}
-
-#modal iframe{
-  width:100%;
-  height:100%;
-  border:none;
-}
-
-#close{
-  position:absolute;
-  top:10px;
-  right:10px;
-  background:red;
-  color:#fff;
-  padding:8px 12px;
-  z-index:10000;
-}
-
 /* MOBILE */
 @media(max-width:768px){
   #grid{
@@ -98,15 +73,10 @@ button{
 </div>
 
 <div id="grid">
-  <div class="chart" id="tv1" onclick="openFull()"></div>
-  <div class="chart" id="tv2" onclick="openFull()"></div>
-  <div class="chart" id="tv3" onclick="openFull()"></div>
-  <div class="chart" id="tv4" onclick="openFull()"></div>
-</div>
-
-<div id="modal">
-  <div id="close" onclick="closeFull()">KAPAT</div>
-  <iframe id="iframe"></iframe>
+  <div class="chart" id="tv1" onclick="openTV('BINANCE:BTCUSDT')"></div>
+  <div class="chart" id="tv2" onclick="openTV('BINANCE:ETHUSDT')"></div>
+  <div class="chart" id="tv3" onclick="openTV('OANDA:EURUSD')"></div>
+  <div class="chart" id="tv4" onclick="openTV('OANDA:US100USD')"></div>
 </div>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
@@ -150,14 +120,12 @@ function setLayout(n){
  });
 }
 
-function openFull(){
- document.getElementById("iframe").src="https://www.tradingview.com/chart/";
- document.getElementById("modal").style.display="block";
-}
-
-function closeFull(){
- document.getElementById("modal").style.display="none";
- document.getElementById("iframe").src="";
+/* 🔥 ALETLİ TRADINGVIEW – KESİN */
+function openTV(symbol){
+  window.open(
+    "https://www.tradingview.com/chart/?symbol="+symbol,
+    "_blank"
+  );
 }
 
 setLayout(4);
