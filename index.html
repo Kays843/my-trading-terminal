@@ -3,83 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Trade Army | Pro Terminal</title>
+    <title>TRADE ARMY PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* DOKUNMATİK GECİKMESİNİ SIFIRLAYAN KRİTİK CSS */
+        /* TÜM DOKUNMATİK ENGELLERİ SIFIRLA */
         html, body { 
-            background-color: #0c0d10; 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            overflow: hidden !important;
-            touch-action: none !important; /* Tarayıcının tüm varsayılan hareketlerini durdur */
-            -webkit-overflow-scrolling: none;
-            user-select: none;
+            background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden !important; position: fixed;
         }
-        
-        #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background-color: #1e222d; }
+        #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background: #1e222d; }
         .grid-1 { grid-template-columns: 1fr; }
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-
-        iframe { 
-            pointer-events: auto !important; 
-            touch-action: auto !important;
-            border: none;
-            width: 100%;
-            height: 100%;
-        }
-
-        .layout-btn { background: #131722; color: #81858e; border: 1px solid #1e222d; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .btn-active { background: #2962ff !important; color: white !important; box-shadow: 0 0 10px rgba(41, 98, 255, 0.4); }
         
-        .nav-btn { flex: 1; background: #131722; color: #d1d4dc; font-size: 11px; font-weight: bold; border: none; }
-        .nav-btn:active { background: #2962ff; color: white; }
+        /* Iframe üzerine binen her şeyi kaldır */
+        iframe { pointer-events: auto !important; touch-action: auto !important; }
+
+        .layout-btn { background: #131722; color: #81858e; border: 1px solid #2a2e39; padding: 8px 16px; border-radius: 6px; font-weight: bold; }
+        .active-layout { background: #2962ff !important; color: white !important; border-color: #2962ff; }
+        .nav-btn { flex: 1; background: #131722; color: #d1d4dc; font-weight: bold; font-size: 12px; border: none; }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <header class="h-14 border-b border-[#1e222d] bg-[#131722] flex items-center justify-between px-4 shrink-0">
-        <div class="flex items-center">
-            <span class="text-blue-500 font-black italic text-xl tracking-tighter">TRADE <span class="text-white">ARMY</span></span>
-        </div>
-        
-        <div class="flex items-center space-x-1">
-            <button onclick="changeLayout(1, this)" class="layout-btn btn-active">1</button>
+    <header class="h-16 border-b border-[#1e222d] bg-[#131722] flex items-center justify-between px-6 shrink-0">
+        <span class="text-blue-500 font-black italic text-2xl tracking-tighter">TRADE <span class="text-white">ARMY</span></span>
+        <div class="flex space-x-2">
+            <button onclick="changeLayout(1, this)" class="layout-btn active-layout">1</button>
             <button onclick="changeLayout(2, this)" class="layout-btn">2</button>
             <button onclick="changeLayout(4, this)" class="layout-btn">4</button>
         </div>
     </header>
 
-    <main class="flex-1 overflow-hidden relative">
+    <main class="flex-1 relative overflow-hidden">
         <div id="chart-grid" class="grid-1">
-            <div id="tv_chart_1"></div>
-            <div id="tv_chart_2" class="hidden"></div>
-            <div id="tv_chart_3" class="hidden"></div>
-            <div id="tv_chart_4" class="hidden"></div>
+            <div id="tv_1" class="w-full h-full"></div>
+            <div id="tv_2" class="w-full h-full hidden"></div>
+            <div id="tv_3" class="w-full h-full hidden"></div>
+            <div id="tv_4" class="w-full h-full hidden"></div>
         </div>
     </main>
 
     <nav class="h-14 border-t border-[#1e222d] flex shrink-0">
-        <button onclick="updateSymbol('BINANCE:BTCUSDT')" class="nav-btn border-r border-gray-800">BTC</button>
-        <button onclick="updateSymbol('BINANCE:ETHUSDT')" class="nav-btn border-r border-gray-800">ETH</button>
-        <button onclick="updateSymbol('TVC:GOLD')" class="nav-btn border-r border-gray-800">ALTIN</button>
+        <button onclick="updateSymbol('BINANCE:BTCUSDT')" class="nav-btn border-r border-[#1e222d]">BTC</button>
+        <button onclick="updateSymbol('BINANCE:ETHUSDT')" class="nav-btn border-r border-[#1e222d]">ETH</button>
+        <button onclick="updateSymbol('TVC:GOLD')" class="nav-btn border-r border-[#1e222d]">ALTIN</button>
         <button onclick="updateSymbol('FX:USDTRY')" class="nav-btn">USD/TRY</button>
     </nav>
-
-    <footer class="h-6 bg-black flex items-center justify-between px-4 text-[9px] text-gray-600 shrink-0">
-        <div>© 2026 TRADE ARMY</div>
-        <div>Yatırım tavsiyesi değildir.</div>
-    </footer>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         let currentSymbol = 'BINANCE:BTCUSDT';
         let currentCount = 1;
-
-        // DOKUNMATİK HASSASİYET YAMASI: Tıklama gecikmesini (300ms) iptal eder
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) e.preventDefault();
-        }, { passive: false });
 
         function initChart(id, symbol) {
             new TradingView.widget({
@@ -92,21 +67,27 @@
                 "locale": "tr",
                 "toolbar_bg": "#131722",
                 "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": true,
-                "container_id": id,
+                "hide_side_toolbar": false, // Aletler açık
                 "withdateranges": true,
+                "hide_legend": false,
+                "save_image": true,
+                "container_id": id,
+                // KRİTİK: DOKUNMATİKTE KİLİDİ AÇAN AYARLAR
                 "enabled_features": [
                     "header_resolutions", 
                     "header_indicators", 
                     "header_settings", 
-                    "header_chart_type",
+                    "header_symbol_search",
                     "side_toolbar_in_fullscreen_mode",
-                    "header_symbol_search"
+                    "left_toolbar" // Sol alet çubuğunu zorla
+                ],
+                "disabled_features": [
+                    "use_localstorage_for_settings_save",
+                    "header_saveload" 
                 ],
                 "overrides": {
                     "paneProperties.background": "#131722",
-                    "paneProperties.topMargin": 10
+                    "mainSeriesProperties.style": 1
                 }
             });
         }
@@ -114,17 +95,17 @@
         function changeLayout(count, btn) {
             currentCount = count;
             document.getElementById('chart-grid').className = `grid-${count}`;
-            document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('btn-active'));
-            if(btn) btn.classList.add('btn-active');
+            document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active-layout'));
+            if(btn) btn.classList.add('active-layout');
 
             for (let i = 1; i <= 4; i++) {
-                const container = document.getElementById(`tv_chart_${i}`);
+                const el = document.getElementById(`tv_${i}`);
                 if (i <= count) {
-                    container.classList.remove('hidden');
-                    initChart(`tv_chart_${i}`, currentSymbol);
+                    el.classList.remove('hidden');
+                    initChart(`tv_${i}`, currentSymbol);
                 } else {
-                    container.classList.add('hidden');
-                    container.innerHTML = "";
+                    el.classList.add('hidden');
+                    el.innerHTML = "";
                 }
             }
         }
@@ -132,11 +113,11 @@
         function updateSymbol(s) {
             currentSymbol = s;
             for (let i = 1; i <= currentCount; i++) {
-                initChart(`tv_chart_${i}`, s);
+                initChart(`tv_${i}`, s);
             }
         }
 
-        window.onload = () => initChart('tv_chart_1', currentSymbol);
+        window.onload = () => initChart('tv_1', currentSymbol);
     </script>
 </body>
 </html>
