@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TRADE ARMY | Ultimate Terminal</title>
+    <title>TRADE ARMY | Ultimate Terminal v1.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* SİSTEM AYARLARI */
         html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; color: #d1d4dc; font-family: 'Inter', sans-serif; }
         * { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         
@@ -15,16 +14,18 @@
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 
-        /* PANELLER */
-        .side-panel { width: 280px; background: #131722; border-left: 1px solid #1e222d; display: flex; flex-direction: column; transition: all 0.3s; }
-        @media (max-width: 1024px) { .side-panel { display: none; } } /* Mobilde gizle */
+        .side-panel { width: 280px; background: #131722; border-left: 1px solid #1e222d; display: flex; flex-direction: column; }
+        @media (max-width: 1024px) { .side-panel { display: none; } }
 
-        .control-btn { background: #1e222d; color: #81858e; border: 1px solid #2a2e39; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .control-btn { background: #1e222d; color: #81858e; border: 1px solid #2a2e39; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .active-layout { background: #2962ff !important; color: white !important; border-color: #2962ff; }
 
-        /* RENK PANELİ POPUP */
         .color-popup { background: #1c202b; padding: 15px; border-radius: 12px; border: 1px solid #2962ff; position: absolute; top: 70px; right: 20px; z-index: 9999; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .color-popup.visible { display: block; }
+
+        /* Sol menü ikonları için özel stil */
+        .icon-btn { font-size: 18px; color: #81858e; transition: 0.2s; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+        .icon-btn:hover { color: #2962ff; background: #1e222d; transform: scale(1.1); }
 
         iframe { pointer-events: auto !important; touch-action: auto !important; }
     </style>
@@ -43,7 +44,7 @@
 
         <div class="flex items-center space-x-3">
             <button onclick="toggleColorPanel()" class="control-btn border-blue-500/50">🎨 Tema</button>
-            <div id="active-symbol-text" class="text-[10px] font-mono text-gray-500 bg-black/40 px-2 py-1 rounded">BINANCE:BTCUSDT</div>
+            <div id="active-symbol-text" class="text-[10px] font-mono text-gray-500 bg-black/40 px-2 py-1 rounded tracking-tighter uppercase">NASDAQ:IXIC</div>
         </div>
     </header>
 
@@ -68,11 +69,27 @@
 
     <div class="flex flex-1 overflow-hidden relative">
         
-        <aside class="w-12 border-r border-[#1e222d] bg-[#0c0d10] flex flex-col items-center py-4 space-y-5 shrink-0">
-            <button onclick="updateSymbol('BINANCE:BTCUSDT')" title="BTC" class="text-xl hover:scale-125 transition-transform">₿</button>
-            <button onclick="updateSymbol('BINANCE:ETHUSDT')" title="ETH" class="text-xl hover:scale-125 transition-transform">Ξ</button>
-            <button onclick="updateSymbol('TVC:GOLD')" title="ALTIN" class="text-xl hover:scale-125 transition-transform">💰</button>
-            <button onclick="updateSymbol('FX:USDTRY')" title="DOLAR" class="text-xl hover:scale-125 transition-transform">₺</button>
+        <aside class="w-14 border-r border-[#1e222d] bg-[#0c0d10] flex flex-col items-center py-4 space-y-4 shrink-0 overflow-y-auto">
+            <div class="text-[8px] text-gray-600 font-bold uppercase mb-1">Index</div>
+            <button onclick="updateSymbol('NASDAQ:IXIC')" title="Nasdaq" class="icon-btn">📈</button>
+            <button onclick="updateSymbol('CAPITALCOM:US500')" title="S&P 500" class="icon-btn">📊</button>
+            
+            <div class="w-6 h-[1px] bg-gray-800 my-2"></div>
+            <div class="text-[8px] text-gray-600 font-bold uppercase mb-1">Forex</div>
+            <button onclick="updateSymbol('FX:EURUSD')" title="EUR/USD" class="icon-btn">🇪🇺</button>
+            <button onclick="updateSymbol('FX:GBPUSD')" title="GBP/USD" class="icon-btn">🇬🇧</button>
+            <button onclick="updateSymbol('FX:USDJPY')" title="USD/JPY" class="icon-btn">🇯🇵</button>
+            
+            <div class="w-6 h-[1px] bg-gray-800 my-2"></div>
+            <div class="text-[8px] text-gray-600 font-bold uppercase mb-1">Kripto</div>
+            <button onclick="updateSymbol('BINANCE:BTCUSDT')" title="BTC" class="icon-btn">₿</button>
+            <button onclick="updateSymbol('BINANCE:ETHUSDT')" title="ETH" class="icon-btn">Ξ</button>
+            
+            <div class="w-6 h-[1px] bg-gray-800 my-2"></div>
+            <div class="text-[8px] text-gray-600 font-bold uppercase mb-1">Emtia</div>
+            <button onclick="updateSymbol('TVC:GOLD')" title="Altın" class="icon-btn">🟡</button>
+            <button onclick="updateSymbol('TVC:SILVER')" title="Gümüş" class="icon-btn">⚪</button>
+            <button onclick="updateSymbol('TVC:USOIL')" title="Petrol" class="icon-btn">🛢️</button>
         </aside>
 
         <main class="flex-1 relative overflow-hidden bg-black">
@@ -87,7 +104,7 @@
         <aside class="side-panel shrink-0">
             <div class="h-1/2 border-b border-[#1e222d]">
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
-                { "interval": "4h", "width": "100%", "isTransparent": true, "height": "100%", "symbol": "BINANCE:BTCUSDT", "showIntervalTabs": true, "locale": "tr", "colorTheme": "dark" }
+                { "interval": "4h", "width": "100%", "isTransparent": true, "height": "100%", "symbol": "NASDAQ:IXIC", "showIntervalTabs": true, "locale": "tr", "colorTheme": "dark" }
                 </script>
             </div>
             <div class="h-1/2">
@@ -98,37 +115,38 @@
         </aside>
     </div>
 
-    <nav class="h-14 border-t border-[#1e222d] bg-[#131722] flex shrink-0 lg:hidden">
-        <button onclick="updateSymbol('BINANCE:BTCUSDT')" class="flex-1 text-[10px] font-bold">BTC</button>
-        <button onclick="updateSymbol('BINANCE:ETHUSDT')" class="flex-1 text-[10px] font-bold border-l border-gray-800">ETH</button>
-        <button onclick="updateSymbol('TVC:GOLD')" class="flex-1 text-[10px] font-bold border-l border-gray-800">ALTIN</button>
-        <button onclick="updateSymbol('FX:USDTRY')" class="flex-1 text-[10px] font-bold border-l border-gray-800">DOLAR</button>
+    <nav class="h-14 border-t border-[#1e222d] bg-[#131722] flex shrink-0 lg:hidden overflow-x-auto">
+        <button onclick="updateSymbol('NASDAQ:IXIC')" class="px-6 text-[10px] font-bold">NASDAQ</button>
+        <button onclick="updateSymbol('FX:EURUSD')" class="px-6 text-[10px] font-bold border-l border-gray-800">EURUSD</button>
+        <button onclick="updateSymbol('BINANCE:BTCUSDT')" class="px-6 text-[10px] font-bold border-l border-gray-800">BTC</button>
+        <button onclick="updateSymbol('TVC:GOLD')" class="px-6 text-[10px] font-bold border-l border-gray-800">ALTIN</button>
     </nav>
 
-    <footer class="h-6 bg-black flex items-center justify-between px-4 text-[9px] text-gray-600 shrink-0">
-        <div class="flex items-center space-x-2">
-            <span class="text-blue-500 font-bold">TRADE ARMY v3.0</span>
-            <span>© 2026</span>
+    <footer class="h-10 bg-black border-t border-gray-900 flex items-center justify-between px-6 text-[9px] text-gray-500 shrink-0">
+        <div class="flex items-center space-x-3">
+            <span class="text-blue-500 font-bold tracking-tighter uppercase">Trade Army <span class="text-gray-600 ml-1">v1.1</span></span>
+            <span class="text-gray-800">|</span>
+            <span>© 2026 Tüm Hakları Saklıdır</span>
         </div>
-        <div class="text-green-500 font-bold tracking-widest">● LIVE TERMINAL</div>
+        <div class="flex items-center space-x-2">
+            <span class="flex items-center justify-center w-3 h-3 bg-red-900/30 text-red-500 rounded-full text-[8px] font-bold">!</span>
+            <span class="font-bold text-gray-400 uppercase tracking-tight">Yasal Uyarı:</span>
+            <span class="truncate hidden sm:inline text-gray-600">Bu terminaldeki veriler yatırım tavsiyesi niteliği taşımaz.</span>
+        </div>
     </footer>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let currentSymbol = 'BINANCE:BTCUSDT';
+        let currentSymbol = 'NASDAQ:IXIC';
         let currentCount = 1;
 
-        // Hafızadan renkleri yükle
         if(localStorage.getItem('upColor')) {
             document.getElementById('upColor').value = localStorage.getItem('upColor');
             document.getElementById('downColor').value = localStorage.getItem('downColor');
             document.getElementById('bgColor').value = localStorage.getItem('bgColor');
         }
 
-        function toggleColorPanel() {
-            document.getElementById('colorPicker').classList.toggle('visible');
-        }
-
+        function toggleColorPanel() { document.getElementById('colorPicker').classList.toggle('visible'); }
         function saveAndApply() {
             localStorage.setItem('upColor', document.getElementById('upColor').value);
             localStorage.setItem('downColor', document.getElementById('downColor').value);
@@ -144,24 +162,13 @@
             new TradingView.widget({
                 "autosize": true, "symbol": symbol, "interval": "240", "theme": "dark", "style": "1", "locale": "tr",
                 "toolbar_bg": bg, "enable_publishing": false, "hide_side_toolbar": false, "container_id": id,
-                "withdateranges": true,
-                "enabled_features": ["header_resolutions", "header_indicators", "header_settings", "header_symbol_search", "side_toolbar_in_fullscreen_mode", "header_chart_type"],
-                "overrides": {
-                    "paneProperties.background": bg,
-                    "mainSeriesProperties.candleStyle.upColor": up,
-                    "mainSeriesProperties.candleStyle.downColor": down,
-                    "mainSeriesProperties.candleStyle.borderUpColor": up,
-                    "mainSeriesProperties.candleStyle.borderDownColor": down,
-                    "mainSeriesProperties.candleStyle.wickUpColor": up,
-                    "mainSeriesProperties.candleStyle.wickDownColor": down
-                }
+                "withdateranges": true, "allow_symbol_change": true,
+                "enabled_features": ["header_resolutions", "header_indicators", "header_settings", "header_symbol_search", "side_toolbar_in_fullscreen_mode"],
+                "overrides": { "paneProperties.background": bg, "mainSeriesProperties.candleStyle.upColor": up, "mainSeriesProperties.candleStyle.downColor": down }
             });
         }
 
-        function applyColors() {
-            for (let i = 1; i <= currentCount; i++) initChart(`tv_${i}`, currentSymbol);
-        }
-
+        function applyColors() { for (let i = 1; i <= currentCount; i++) initChart(`tv_${i}`, currentSymbol); }
         function changeLayout(count, btn) {
             currentCount = count;
             document.getElementById('chart-grid').className = `grid-${count}`;
