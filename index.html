@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRADE ARMY | V.1 - VOICE</title>
+    <title>TRADE ARMY | V.1 - ULTIMATE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; color: #d1d4dc; font-family: 'Inter', sans-serif; }
         #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background: #1e222d; }
         .grid-1 { grid-template-columns: 1fr; }
+        .grid-2 { grid-template-columns: 1fr 1fr; }
+        .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+        
         .side-panel { width: 280px; background: #131722; border-left: 1px solid #1e222d; transition: 0.3s; }
         .side-panel.closed { width: 0; overflow: hidden; border-left: none; }
-        .control-btn { background: #1e222d; color: #81858e; border: 1px solid #2a2e39; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+        .control-btn { background: #1e222d; color: #81858e; border: 1px solid #2a2e39; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .active-layout { background: #2962ff !important; color: white !important; }
+        
         .header-ticker { height: 40px; background: #131722; border-bottom: 1px solid #1e222d; }
-        .voice-active { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
     </style>
 </head>
 <body class="flex flex-col">
@@ -24,7 +29,8 @@
             { "symbols": [
                 {"proName": "BITSTAMP:BTCUSD", "title": "BTC/USD"},
                 {"proName": "NASDAQ:IXIC", "title": "NASDAQ"},
-                {"proName": "TVC:GOLD", "title": "ALTIN"}
+                {"proName": "TVC:GOLD", "title": "ALTIN"},
+                {"proName": "FX:EURUSD", "title": "EUR/USD"}
             ], "colorTheme": "dark", "isTransparent": true, "locale": "tr" }
             </script>
         </div>
@@ -34,11 +40,14 @@
         <div class="flex items-center space-x-4">
             <div class="flex flex-col">
                 <span class="text-white font-black italic text-lg tracking-tighter uppercase">TRADE ARMY</span>
-                <span class="text-green-500 text-[10px] font-bold tracking-[3px] flex items-center">
-                    <span class="mr-1">●</span> SESLİ ASİSTAN AKTİF
-                </span>
+                <span class="text-blue-500 text-[10px] font-bold tracking-[3px]">VOICE & MULTI-SCREEN</span>
             </div>
-            <button onclick="testVoice()" class="bg-gray-800 text-[10px] px-2 py-1 rounded hover:bg-gray-700">SESİ TEST ET</button>
+            
+            <div class="flex space-x-1 bg-black/20 p-1 rounded border border-gray-800 ml-4">
+                <button onclick="changeLayout(1, this)" class="control-btn active-layout">1</button>
+                <button onclick="changeLayout(2, this)" class="control-btn">2</button>
+                <button onclick="changeLayout(4, this)" class="control-btn">4</button>
+            </div>
         </div>
 
         <div class="flex items-center space-x-2 bg-black/40 p-2 rounded border border-gray-800">
@@ -55,13 +64,18 @@
 
     <div class="flex flex-1 overflow-hidden relative">
         <aside class="w-14 border-r border-[#1e222d] bg-[#0c0d10] flex flex-col items-center py-4 space-y-6 shrink-0">
-            <button onclick="updateSymbol('BINANCE:BTCUSDT')" class="text-xl">₿</button>
-            <button onclick="updateSymbol('NASDAQ:IXIC')" class="text-xl">📈</button>
+            <button onclick="updateSymbol('BINANCE:BTCUSDT')" title="BTC" class="text-xl">₿</button>
+            <button onclick="updateSymbol('NASDAQ:IXIC')" title="Nasdaq" class="text-xl">📈</button>
+            <button onclick="updateSymbol('TVC:GOLD')" title="Altın" class="text-xl">🟡</button>
+            <button onclick="testVoice()" title="Sesi Test Et" class="text-sm">🔊</button>
         </aside>
 
         <main class="flex-1 bg-black overflow-hidden">
-            <div id="chart-grid" class="grid-1">
+            <div id="chart-grid" class="grid-1 h-full w-full">
                 <div id="tv_1" class="w-full h-full"></div>
+                <div id="tv_2" class="w-full h-full hidden"></div>
+                <div id="tv_3" class="w-full h-full hidden"></div>
+                <div id="tv_4" class="w-full h-full hidden"></div>
             </div>
         </main>
 
@@ -75,34 +89,49 @@
     <script>
         let alarmlar = JSON.parse(localStorage.getItem('alarms')) || [];
         let currentSymbol = 'BINANCE:BTCUSDT';
+        let currentCount = 1;
 
-        // SESLİ ASİSTAN FONKSİYONU
+        // SESLİ ASİSTAN
         function speak(text) {
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'tr-TR';
-                utterance.rate = 1; // Konuşma hızı
-                utterance.pitch = 1; // Ses tonu
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        function testVoice() {
-            speak("Sesli asistan sistemi başarıyla bağlandı. Trade Army bol kazançlar diler.");
+        function testVoice() { speak("Ses kontrolü yapılıyor. Trade Army sistemi aktif."); }
+
+        // EKRAN DÜZENİ YÖNETİMİ (Geri Geldi)
+        function changeLayout(count, btn) {
+            currentCount = count;
+            document.getElementById('chart-grid').className = `grid-${count}`;
+            document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active-layout'));
+            if(btn) btn.classList.add('active-layout');
+            
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`tv_${i}`);
+                if (i <= count) {
+                    el.classList.remove('hidden');
+                    initChart(`tv_${i}`, currentSymbol);
+                } else {
+                    el.classList.add('hidden');
+                    el.innerHTML = "";
+                }
+            }
         }
 
         function saveAlarm() {
             const sym = document.getElementById('alarmSym').value.toUpperCase();
             const prc = parseFloat(document.getElementById('alarmPrice').value);
             if(!sym || !prc) return alert("Bilgileri girin!");
-            
             alarmlar.push({ id: Date.now(), symbol: sym, price: prc, active: true });
             localStorage.setItem('alarms', JSON.stringify(alarmlar));
             renderAlarms();
             speak(sym + " için alarm kuruldu.");
         }
 
-        // CANLI FİYAT TAKİBİ VE SESLİ UYARI
+        // BİNANCE FİYAT TAKİBİ
         const socket = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
         socket.onmessage = (e) => {
             const data = JSON.parse(e.data);
@@ -111,27 +140,15 @@
                 const match = data.find(p => p.s === alarm.symbol);
                 if(match) {
                     const price = parseFloat(match.c);
-                    // Fiyata çok yaklaşıldığında (veya geçildiğinde) tetikle
-                    if(Math.abs(price - alarm.price) / alarm.price < 0.0003) {
-                        fireAlarm(alarm);
+                    if(Math.abs(price - alarm.price) / alarm.price < 0.0005) {
+                        alarm.active = false;
+                        localStorage.setItem('alarms', JSON.stringify(alarmlar));
+                        renderAlarms();
+                        speak(`Dikkat! ${alarm.symbol} hedef fiyata ulaştı.`);
                     }
                 }
             });
         };
-
-        function fireAlarm(a) {
-            a.active = false;
-            localStorage.setItem('alarms', JSON.stringify(alarmlar));
-            renderAlarms();
-            
-            // SESLİ ASİSTAN KONUŞUYOR
-            const mesaj = `Dikkat! ${a.symbol} beklenen ${a.price} seviyesine ulaştı. Tekrar ediyorum, ${a.symbol} hedef fiyatta.`;
-            speak(mesaj);
-
-            if(Notification.permission === "granted") {
-                new Notification("🚨 ALARM TETİKLENDİ", { body: mesaj });
-            }
-        }
 
         function renderAlarms() {
             const list = document.getElementById('alarmList');
@@ -149,9 +166,19 @@
             renderAlarms();
         }
 
+        function initChart(id, symbol) {
+            new TradingView.widget({
+                "autosize": true, "symbol": symbol, "interval": "60", "theme": "dark", "container_id": id,
+                "locale": "tr", "toolbar_bg": "#131722", "hide_side_toolbar": false
+            });
+        }
+
+        function updateSymbol(s) {
+            currentSymbol = s;
+            for (let i = 1; i <= currentCount; i++) initChart(`tv_${i}`, s);
+        }
+
         function toggleSidePanel() { document.getElementById('sidePanel').classList.toggle('closed'); }
-        function initChart(id, symbol) { new TradingView.widget({ "autosize": true, "symbol": symbol, "interval": "60", "theme": "dark", "container_id": id, "locale": "tr" }); }
-        function updateSymbol(s) { currentSymbol = s; initChart('tv_1', s); }
         setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
         window.onload = () => { initChart('tv_1', currentSymbol); renderAlarms(); };
     </script>
