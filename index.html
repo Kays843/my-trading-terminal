@@ -2,67 +2,117 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>TraderArmy LWC FULL PRO</title>
+<title>TraderArmy LFX PRO+</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Lightweight Charts -->
 <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
 <style>
-body{margin:0;background:#0e0e0e;color:#fff;font-family:Arial;}
+body{
+    margin:0;
+    background:#0e0e0e;
+    color:#fff;
+    font-family:Arial;
+}
 header{
-    background:#111;padding:10px;display:flex;gap:10px;
-    border-bottom:1px solid #222;flex-wrap:wrap;
+    background:#111;
+    padding:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    border-bottom:1px solid #222;
 }
 select,button,input{
-    background:#1c1c1c;color:#fff;border:1px solid #333;
-    padding:6px;border-radius:4px;cursor:pointer;
+    background:#1a1a1a;
+    color:#fff;
+    border:1px solid #333;
+    padding:6px;
+    border-radius:4px;
 }
+button{cursor:pointer}
+
 #charts{
     display:grid;
-    height:calc(100vh - 70px);
+    height:calc(100vh - 140px); /* footer için boşluk */
 }
 .chart-box{
     border:1px solid #222;
     position:relative;
 }
-.chart{
-    height:100%;width:100%;
-}
+.chart{width:100%;height:100%;}
 .drawCanvas{
-    position:absolute;inset:0;
+    position:absolute;
+    inset:0;
     pointer-events:none;
 }
-.drawCanvas.active{
-    pointer-events:auto;
-}
+.drawCanvas.active{pointer-events:auto}
 
 /* TOOLBAR */
 #toolbar{
-    position:fixed;top:80px;left:10px;
-    background:#111;border:1px solid #333;
-    padding:8px;border-radius:8px;
-    display:flex;flex-direction:column;gap:6px;
-    z-index:99999;cursor:move;
+    position:fixed;
+    top:100px;
+    left:10px;
+    background:#111;
+    border:1px solid #333;
+    padding:8px;
+    border-radius:8px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    z-index:9999;
+    cursor:move;
 }
 #toolbar button.active{background:#2962ff}
 
-/* ALARM BOX */
+/* SEARCH */
+#searchBox{width:200px}
+
+/* ALARM */
 #alarmBox{
-    position:fixed;right:20px;bottom:70px;
-    width:240px;background:#111;border:1px solid #333;
-    padding:10px;border-radius:6px;display:none;
+    position:fixed;
+    right:20px;
+    bottom:90px;
+    width:240px;
+    background:#111;
+    border:1px solid #333;
+    padding:10px;
+    border-radius:8px;
+    display:none;
     z-index:9999;
 }
 .alItem{
-    padding:4px;border-bottom:1px solid #222;
-    display:flex;justify-content:space-between;font-size:12px;
+    padding:5px;
+    border-bottom:1px solid #222;
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
 }
 #alarmBtn{
-    position:fixed;right:20px;bottom:20px;
-    background:#2962ff;padding:10px 16px;
-    border:none;border-radius:6px;font-weight:bold;
-    cursor:pointer;z-index:9999;
+    position:fixed;
+    right:20px;
+    bottom:50px;
+    background:#2962ff;
+    padding:10px 16px;
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* FOOTER */
+footer{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    background:#0d0d0d;
+    border-top:1px solid #222;
+    padding:12px;
+    color:#888;
+    text-align:center;
+    font-size:13px;
+    z-index:999;
 }
 </style>
 </head>
@@ -70,18 +120,18 @@ select,button,input{
 <body>
 
 <header>
-<strong>TraderArmy Pro+</strong>
+<strong>TraderArmy LFX PRO+</strong>
 
-<select id="symbolSelect">
-  <option value="BTCUSDT">BTCUSDT</option>
-  <option value="ETHUSDT">ETHUSDT</option>
-</select>
+<input id="searchBox" placeholder="Sembol Ara...">
+<select id="symbolSelect"></select>
 
 <select id="tfSelect">
   <option value="1m">1m</option>
   <option value="5m" selected>5m</option>
   <option value="15m">15m</option>
   <option value="1h">1H</option>
+  <option value="4h">4H</option>
+  <option value="1d">1D</option>
 </select>
 
 <button onclick="applyAll()">Uygula</button>
@@ -89,7 +139,6 @@ select,button,input{
 <button onclick="setLayout(1)">1</button>
 <button onclick="setLayout(2)">2</button>
 <button onclick="setLayout(4)">4</button>
-
 </header>
 
 <!-- TOOLBAR -->
@@ -97,307 +146,190 @@ select,button,input{
 <button onclick="setTool('trend',this)">Trend</button>
 <button onclick="setTool('hline',this)">Yatay</button>
 <button onclick="setTool('vline',this)">Dikey</button>
-
 <button onclick="setTool('rect',this)">Zone</button>
 <button onclick="setTool('brush',this)">Brush</button>
-
-<button onclick="setTool('fib',this)">Fib</button>
-
 <button onclick="setTool('long',this)">🟢 Long</button>
 <button onclick="setTool('short',this)">🔴 Short</button>
-
 <button onclick="clearDraw()">Sil</button>
 <button onclick="exitDraw()">Çık</button>
 </div>
 
-<!-- MULTI CHART CONTAINER -->
+<!-- CHARTS -->
 <div id="charts"></div>
 
 <!-- ALARM -->
 <div id="alarmBox">
 <strong>Alarm Ekle</strong><br><br>
-<input id="alarmPrice" type="number" placeholder="Fiyat" style="width:100%;padding:6px;background:#000;color:#fff;border:1px solid #333;"><br><br>
-<select id="alarmDir" style="width:100%;padding:6px;background:#000;color:#fff;border:1px solid #333;">
+<input id="alarmPrice" type="number" placeholder="Fiyat" style="width:100%;padding:6px"><br><br>
+<select id="alarmDir" style="width:100%;padding:6px">
   <option value="up">YUKARI</option>
   <option value="down">AŞAĞI</option>
 </select><br><br>
-<button onclick="addAlarm()" style="width:100%;background:#2962ff;padding:6px;border:none;border-radius:6px;">Ekle</button>
-<div id="alarmList" style="margin-top:10px;max-height:140px;overflow-y:auto;"></div>
+<button onclick="addAlarm()" style="width:100%;background:#2962ff;padding:6px;border:none;border-radius:4px">Ekle</button>
+<div id="alarmList" style="margin-top:10px;max-height:150px;overflow-y:auto"></div>
 </div>
 
 <button id="alarmBtn" onclick="toggleAlarm()">🔔 ALARM</button>
 
+<footer>
+⚠️ <b>Yasal Uyarı:</b> Bu platformda yer alan grafikler, analizler, çizimler, alarmlar ve tüm içerikler 
+<b>yatırım tavsiyesi değildir</b>. Finansal piyasalarda yapılan işlemler yüksek risk içerir. 
+Oluşabilecek kâr veya zararlardan tamamen kullanıcı sorumludur.
+</footer>
+
 <script>
-/* ==============================================
-   GLOBALS
-   ============================================== */
-let layout=1;
-let charts=[];
-let canvases=[];
-let series=[];
-let tool=null;
-let drawings = JSON.parse(localStorage.getItem("drawings") || "[]");
-let alarms = JSON.parse(localStorage.getItem("alarms") || "[]");
+/* ================== GLOBAL ================== */
+let layout=1, charts=[], series=[], canvases=[], tool=null;
+let drawings=JSON.parse(localStorage.getItem("drawings")||"[]");
+let alarms=JSON.parse(localStorage.getItem("alarms")||"[]");
 
-let activeChart = 0; // hangi grafiğe çizim yapılacak
+/* ================== API KEY ================== */
+const TD_KEY = "YOUR_API_KEY_YAZ";
 
-/* ==============================================
-   LAYOUT SİSTEMİ
-   ============================================== */
-function setLayout(n){
-    layout=n;
-    renderCharts();
+/* ================== SYMBOLS ================== */
+async function loadSymbols(){
+    const sel=document.getElementById("symbolSelect");
+    const search=document.getElementById("searchBox");
+
+    const b=await fetch("https://api.binance.com/api/v3/exchangeInfo");
+    const bj=await b.json();
+    const crypto=bj.symbols.filter(s=>s.quoteAsset==="USDT").map(s=>s.symbol);
+
+    const fx=await fetch(`https://api.twelvedata.com/forex_pairs?apikey=${TD_KEY}`);
+    const fxj=await fx.json();
+    const forex=fxj.data.map(p=>p.symbol.replace("/",""));
+
+    const all=[...new Set([...crypto,...forex])].sort();
+
+    function render(){
+        sel.innerHTML="";
+        all.filter(s=>s.toLowerCase().includes(search.value.toLowerCase()))
+           .forEach(s=>sel.innerHTML+=`<option value="${s}">${s}</option>`);
+    }
+    search.oninput=render;
+    render();
 }
 
-/* ==============================================
-   CHART OLUŞTUR
-   ============================================== */
+/* ================== LAYOUT ================== */
+function setLayout(n){layout=n;renderCharts();}
+
+/* ================== CHARTS ================== */
 async function renderCharts(){
-    const container=document.getElementById("charts");
-    container.innerHTML="";
+    const cont=document.getElementById("charts");
+    cont.innerHTML="";
+    cont.style.gridTemplateColumns=layout===1?"1fr":layout===2?"1fr 1fr":"1fr 1fr";
 
-    if(layout===1) container.style.gridTemplateColumns="1fr";
-    if(layout===2) container.style.gridTemplateColumns="1fr 1fr";
-    if(layout===4) container.style.gridTemplateColumns="1fr 1fr";
-
-    charts=[]; series=[]; canvases=[];
-
+    charts=[];series=[];canvases=[];
     for(let i=0;i<layout;i++){
-        const box=document.createElement("div");
-        box.className="chart-box";
-        box.innerHTML=`
-            <div class="chart" id="chart${i}"></div>
-            <canvas class="drawCanvas" id="canvas${i}"></canvas>
-        `;
-        container.appendChild(box);
-
-        let chart = LightweightCharts.createChart(
-            document.getElementById("chart"+i),
-            {
-                layout:{background:{color:"#0e0e0e"},textColor:"#fff"},
-                grid:{vertLines:{color:"#222"},horzLines:{color:"#222"}},
-                timeScale:{timeVisible:true,secondVisible:false},
-            }
-        );
-
-        let cs = chart.addCandlestickSeries();
-        charts.push(chart);
-        series.push(cs);
-
-        let c = document.getElementById("canvas"+i);
-        canvases.push(c);
-        setupCanvasEvents(c,i);
+        cont.innerHTML+=`
+        <div class="chart-box">
+          <div class="chart" id="chart${i}"></div>
+          <canvas class="drawCanvas" id="canvas${i}"></canvas>
+        </div>`;
+        const chart=LightweightCharts.createChart(document.getElementById("chart"+i),{
+            layout:{background:{color:"#0e0e0e"},textColor:"#fff"},
+            grid:{vertLines:{color:"#222"},horzLines:{color:"#222"}},
+            timeScale:{timeVisible:true}
+        });
+        const cs=chart.addCandlestickSeries();
+        charts.push(chart);series.push(cs);
+        setupCanvas(document.getElementById("canvas"+i),i);
     }
-
-    await applyAll();
-    redrawAll();
+    applyAll(); redrawAll();
 }
 
-/* ==============================================
-   DATA ÇEK
-   ============================================== */
 async function applyAll(){
-    let sym=document.getElementById("symbolSelect").value;
-    let tf=document.getElementById("tfSelect").value;
-
-    for(let i=0;i<charts.length;i++){
-        loadData(i,sym,tf);
+    const sym=document.getElementById("symbolSelect").value;
+    const tf=document.getElementById("tfSelect").value;
+    for(let i=0;i<series.length;i++){
+        const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${tf}`);
+        const j=await r.json();
+        series[i].setData(j.map(c=>({time:c[0]/1000,open:+c[1],high:+c[2],low:+c[3],close:+c[4]})));
     }
 }
 
-async function loadData(idx,symbol,tf){
-    const url=`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${tf}`;
-    let res=await fetch(url);
-    let json=await res.json();
-
-    const data=json.map(c=>({
-        time:c[0]/1000,
-        open:+c[1],high:+c[2],
-        low:+c[3],close:+c[4]
-    }));
-
-    series[idx].setData(data);
-}
-
-/* ==============================================
-   TOOLBAR
-   ============================================== */
-function setTool(t,btn){
+/* ================== DRAW ================== */
+function setTool(t,b){
     tool=t;
-    document.querySelectorAll("#toolbar button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-
+    document.querySelectorAll("#toolbar button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
     canvases.forEach(c=>c.classList.add("active"));
 }
-
 function exitDraw(){
     tool=null;
     canvases.forEach(c=>c.classList.remove("active"));
-    document.querySelectorAll("#toolbar button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("#toolbar button").forEach(x=>x.classList.remove("active"));
 }
+function clearDraw(){drawings=[];localStorage.setItem("drawings","[]");redrawAll();}
 
-function clearDraw(){
-    drawings=[];
-    localStorage.setItem("drawings","[]");
-    redrawAll();
-}
-
-/* ==============================================
-   ÇİZİM MOTORU
-   ============================================== */
-function setupCanvasEvents(canvas,idx){
-    const ctx = canvas.getContext("2d");
-
-    function resize(){
-        canvas.width=canvas.offsetWidth;
-        canvas.height=canvas.offsetHeight;
-        redrawAll();
-    }
-    resize();
-    window.addEventListener("resize",resize);
-
+function setupCanvas(c,i){
+    canvases[i]=c;
+    const ctx=c.getContext("2d");
+    c.width=c.offsetWidth;c.height=c.offsetHeight;
     let start=null;
-
-    canvas.onmousedown=e=>{
-        activeChart = idx;
-        if(!tool) return;
-        start={x:e.offsetX,y:e.offsetY};
-    };
-
-    canvas.onmouseup=e=>{
-        if(!start || !tool) return;
-
-        let end={x:e.offsetX,y:e.offsetY};
-
-        drawings.push({
-            chart:idx,
-            tool:tool,
-            x1:start.x,y1:start.y,
-            x2:end.x,y2:end.y
-        });
-
+    c.onmousedown=e=>{if(!tool)return;start={x:e.offsetX,y:e.offsetY};};
+    c.onmouseup=e=>{
+        if(!start)return;
+        drawings.push({chart:i,tool,x1:start.x,y1:start.y,x2:e.offsetX,y2:e.offsetY});
         localStorage.setItem("drawings",JSON.stringify(drawings));
-
-        start=null;
-        redrawAll();
-        exitDraw();
+        start=null;exitDraw();redrawAll();
     };
 }
 
-/* ==============================================
-   ÇİZİM ÇİZME
-   ============================================== */
 function redrawAll(){
     canvases.forEach((c,i)=>{
-        let ctx=c.getContext("2d");
+        const ctx=c.getContext("2d");
         ctx.clearRect(0,0,c.width,c.height);
-        ctx.strokeStyle="#f5c542";
-        ctx.lineWidth=2;
-
+        ctx.strokeStyle="#f5c542";ctx.lineWidth=2;
         drawings.filter(d=>d.chart===i).forEach(d=>{
             ctx.beginPath();
-
-            if(d.tool==="trend"){
-                ctx.moveTo(d.x1,d.y1);
-                ctx.lineTo(d.x2,d.y2);
-            }
-            if(d.tool==="hline"){
-                ctx.moveTo(0,d.y2);
-                ctx.lineTo(c.width,d.y2);
-            }
-            if(d.tool==="vline"){
-                ctx.moveTo(d.x2,0);
-                ctx.lineTo(d.x2,c.height);
-            }
-
-            // LONG POZİSYON
-            if(d.tool==="long"){
-                ctx.fillStyle="rgba(0,255,0,0.25)";
-                ctx.fillRect(d.x1, d.y2, 80, (d.y1-d.y2));
-                ctx.strokeStyle="#0f0";
-                ctx.strokeRect(d.x1, d.y2, 80, (d.y1-d.y2));
-            }
-
-            // SHORT POZİSYON
-            if(d.tool==="short"){
-                ctx.fillStyle="rgba(255,0,0,0.25)";
-                ctx.fillRect(d.x1, d.y1, 80, (d.y2-d.y1));
-                ctx.strokeStyle="#f00";
-                ctx.strokeRect(d.x1, d.y1, 80, (d.y2-d.y1));
-            }
-
+            if(d.tool==="trend"){ctx.moveTo(d.x1,d.y1);ctx.lineTo(d.x2,d.y2);}
+            if(d.tool==="hline"){ctx.moveTo(0,d.y2);ctx.lineTo(c.width,d.y2);}
+            if(d.tool==="vline"){ctx.moveTo(d.x2,0);ctx.lineTo(d.x2,c.height);}
+            if(d.tool==="rect"){ctx.strokeRect(Math.min(d.x1,d.x2),Math.min(d.y1,d.y2),Math.abs(d.x2-d.x1),Math.abs(d.y2-d.y1));}
             ctx.stroke();
         });
     });
 }
 
-/* ==============================================
-   ALARM SİSTEMİ
-   ============================================== */
+/* ================== ALARM ================== */
 function toggleAlarm(){
-    let b=document.getElementById("alarmBox");
-    b.style.display=(b.style.display==="block"?"none":"block");
+    const b=document.getElementById("alarmBox");
+    b.style.display=b.style.display==="block"?"none":"block";
     drawAlarmList();
 }
-
 function addAlarm(){
-    let price=parseFloat(document.getElementById("alarmPrice").value);
-    let dir=document.getElementById("alarmDir").value;
-    let sym=document.getElementById("symbolSelect").value;
-
-    if(!price){alert("Fiyat gir.");return;}
-
-    alarms.push({symbol:sym, price, dir});
+    const p=parseFloat(document.getElementById("alarmPrice").value);
+    const d=document.getElementById("alarmDir").value;
+    const s=document.getElementById("symbolSelect").value;
+    if(!p)return;
+    alarms.push({symbol:s,price:p,dir:d});
     localStorage.setItem("alarms",JSON.stringify(alarms));
-
     drawAlarmList();
 }
-
 function drawAlarmList(){
-    let html="";
-    alarms.forEach((a,i)=>{
-        html+=`
-        <div class="alItem">
-          ${a.symbol} 
-          ${a.dir==="up"?"⬆":"⬇"}
-          ${a.price}
-          <span style="color:red;cursor:pointer" onclick="delAlarm(${i})">X</span>
-        </div>`;
-    });
-    document.getElementById("alarmList").innerHTML=html;
+    document.getElementById("alarmList").innerHTML=
+        alarms.map((a,i)=>`<div class="alItem">${a.symbol} ${a.dir==="up"?"⬆":"⬇"} ${a.price}
+        <span onclick="delAlarm(${i})" style="color:red;cursor:pointer">X</span></div>`).join("");
 }
+function delAlarm(i){alarms.splice(i,1);localStorage.setItem("alarms",JSON.stringify(alarms));drawAlarmList();}
 
-function delAlarm(i){
-    alarms.splice(i,1);
-    localStorage.setItem("alarms",JSON.stringify(alarms));
-    drawAlarmList();
-}
-
-/* ALARM KONTROL */
-setInterval(checkAlarms,3000);
-
-async function checkAlarms(){
+setInterval(async ()=>{
     for(let i=alarms.length-1;i>=0;i--){
-        let a=alarms[i];
-        let res=await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${a.symbol}`);
-        let js=await res.json();
-        let p=+js.price;
-
-        if(a.dir==="up" && p>=a.price || a.dir==="down" && p<=a.price){
-            new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play();
-            alert(`${a.symbol} alarm tetiklendi! (${p})`);
-
+        const a=alarms[i];
+        const r=await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${a.symbol}`);
+        const p=+(await r.json()).price;
+        if((a.dir==="up"&&p>=a.price)||(a.dir==="down"&&p<=a.price)){
+            alert(`${a.symbol} alarm tetiklendi!`);
             alarms.splice(i,1);
             localStorage.setItem("alarms",JSON.stringify(alarms));
             drawAlarmList();
         }
     }
-}
+},3000);
 
-/* ==============================================
-   SAYFA BAŞLANGIÇ
-   ============================================== */
-renderCharts();
+/* INIT */
+loadSymbols();renderCharts();
 </script>
 
 </body>
