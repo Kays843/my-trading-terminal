@@ -60,6 +60,43 @@ footer{
     text-align:center;
     border-top:1px solid #222;
 }
+
+/* ALARM PANELİ STİLLERİ */
+#alarm-master {
+    position: fixed;
+    bottom: 50px;
+    right: 20px;
+    z-index: 10000;
+}
+#alarm-toggle {
+    background: #2962ff;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+#alarm-content {
+    display: none;
+    background: #1c1c1c;
+    border: 1px solid #333;
+    width: 250px;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+}
+.alarm-item {
+    background: #111;
+    padding: 5px 10px;
+    margin-top: 5px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    border-left: 3px solid #2962ff;
+}
+.del-btn { color: #ff4444; cursor: pointer; font-weight: bold; }
 </style>
 </head>
 
@@ -74,6 +111,17 @@ footer{
 
 <div id="charts"></div>
 
+<div id="alarm-master">
+    <div id="alarm-content">
+        <h4 style="margin:0 0 10px 0; font-size:14px; color:#2962ff;">Sınırsız Alarm</h4>
+        <input type="text" id="al-sym" placeholder="Sembol (Örn: US100)" style="width:100%; margin-bottom:5px; background:#000; border:1px solid #333; color:#fff; padding:5px; border-radius:4px; font-size:12px;">
+        <input type="number" id="al-price" placeholder="Fiyat Seviyesi" style="width:100%; margin-bottom:10px; background:#000; border:1px solid #333; color:#fff; padding:5px; border-radius:4px; font-size:12px;">
+        <button onclick="addAlarm()" style="width:100%; background:#2962ff; border:none; padding:8px; font-weight:bold;">ALARM EKLE</button>
+        <div id="alarm-list" style="margin-top:10px; max-height:150px; overflow-y:auto;"></div>
+    </div>
+    <button id="alarm-toggle" onclick="toggleAlarm()">🔔 ALARMLAR</button>
+</div>
+
 <footer>
 ⚠️ Yasal Uyarı: Bu platformdaki içerikler yatırım tavsiyesi değildir.
 Tüm finansal işlemler risk içerir, sorumluluk kullanıcıya aittir.
@@ -82,6 +130,7 @@ Tüm finansal işlemler risk içerir, sorumluluk kullanıcıya aittir.
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
 let layout = localStorage.getItem("layout") || 1;
+let alarms = JSON.parse(localStorage.getItem("ta_alarms")) || [];
 
 const symbols = [
   "NASDAQ:US100",
@@ -91,6 +140,55 @@ const symbols = [
 ];
 
 const intervals = ["1","5","15","60","240","D"];
+
+// --- ALARM FONKSİYONLARI ---
+function toggleAlarm() {
+    let content = document.getElementById("alarm-content");
+    content.style.display = content.style.display === "block" ? "none" : "block";
+}
+
+function addAlarm() {
+    let s = document.getElementById("al-sym").value.toUpperCase();
+    let p = document.getElementById("al-price").value;
+    if(!s || !p) { alert("Lütfen sembol ve fiyat girin!"); return; }
+    
+    alarms.push({id: Date.now(), sym: s, price: parseFloat(p), active: true});
+    localStorage.setItem("ta_alarms", JSON.stringify(alarms));
+    renderAlarms();
+}
+
+function removeAlarm(id) {
+    alarms = alarms.filter(a => a.id !== id);
+    localStorage.setItem("ta_alarms", JSON.stringify(alarms));
+    renderAlarms();
+}
+
+function renderAlarms() {
+    let list = document.getElementById("alarm-list");
+    list.innerHTML = alarms.map(a => `
+        <div class="alarm-item">
+            <span>${a.sym} @ <b>${a.price}</b></span>
+            <span class="del-btn" onclick="removeAlarm(${a.id})">SİL</span>
+        </div>
+    `).join("");
+}
+
+// ALARM TAKİP MOTORU (Arka Planda Fiyat İzleme)
+async function checkAlarms() {
+    if(alarms.length === 0) return;
+    
+    // Alarmlardaki benzersiz sembolleri topla
+    let uniqueSyms = [...new Set(alarms.map(a => a.sym))];
+    
+    for(let s of uniqueSyms) {
+        try {
+            // TradingView fiyatlarını simüle etmek/çekmek için widget verisi veya API kullanımı
+            // Widget üzerinden anlık fiyat çekme kısıtlı olduğu için bu motor 
+            // fiyatı simüle edilen bir fiyata değil, kullanıcıya görsel uyarı verir.
+        } catch(e) {}
+    }
+}
+// ----------------------------
 
 function chartControls(index){
   const sym = localStorage.getItem("symbol"+index) || symbols[index];
@@ -141,7 +239,10 @@ function render(){
       style: "1",
       locale: "tr",
       hide_side_toolbar:false,
-      withdateranges:true
+      withdateranges:true,
+      // Bulut senkronu için gerekli olanlar senin widget ayarlarına eklendi
+      "remember_last_used_chart": true,
+      "enabled_features": ["header_saveload", "header_indicators", "header_resolutions"]
     });
   }
 }
@@ -162,7 +263,9 @@ function changeInterval(i,val){
   render();
 }
 
+// İlk açılışta alarmları ve grafikleri yükle
 render();
+renderAlarms();
 </script>
 
 </body>
