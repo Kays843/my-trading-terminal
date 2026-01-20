@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRADE ARMY V1 | PREMİUM FINAL</title>
+    <title>TRADE ARMY V1 | FULL STATION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body { background: #08090d; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; color: #d1d4dc; font-family: sans-serif; }
@@ -12,59 +12,49 @@
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
         .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-        .active-btn { background: #2962ff !important; color: white !important; box-shadow: 0 0 15px rgba(41,98,255,0.3); }
+        .active-btn { background: #2962ff !important; color: white !important; }
         .header-bg { background: #131722; border-bottom: 1px solid #2a2e39; }
         .side-panel { width: 380px; background: #131722; border-left: 1px solid #2a2e39; transition: 0.3s; z-index: 100; display: flex; flex-direction: column; }
         .closed { width: 0; overflow: hidden; border-left: none; }
         .footer-bar { background: #131722; color: #5d606b; font-size: 11px; padding: 10px; text-align: center; border-top: 1px solid #2a2e39; shrink-0; }
-        .premium-border { border: 1px solid rgba(41, 98, 255, 0.2); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #2a2e39; }
+        .input-glow:focus { border-color: #2962ff; box-shadow: 0 0 10px rgba(41, 98, 255, 0.2); }
     </style>
 </head>
 <body class="flex flex-col">
-
-    <div class="h-10 bg-[#131722] border-b border-[#1e222d] shrink-0">
-        <div class="tradingview-widget-container">
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            { "symbols": [
-                {"proName": "NASDAQ:NAS100", "title": "NAS100"},
-                {"proName": "FX:EURUSD", "title": "EUR/USD"},
-                {"proName": "TVC:GOLD", "title": "GOLD"},
-                {"proName": "BINANCE:BTCUSDT", "title": "BTC"},
-                {"proName": "FX:GBPUSD", "title": "GBP/USD"}
-            ], "colorTheme": "dark", "isTransparent": true, "locale": "tr" }
-            </script>
-        </div>
-    </div>
 
     <header class="p-4 header-bg shrink-0">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-4">
                 <h1 class="text-2xl font-black italic text-white uppercase tracking-tighter">Trade Army <span class="text-blue-500">V1 PRO</span></h1>
-                <div class="hidden md:block bg-blue-600/10 text-blue-400 text-[10px] px-3 py-1 rounded-full border border-blue-500/20 font-bold tracking-widest">PREMİUM SYNC</div>
+                <a href="https://www.tradingview.com/accounts/signin/" target="_blank" class="bg-[#2962ff] hover:bg-white hover:text-black text-white text-[10px] px-4 py-1.5 rounded font-bold uppercase transition flex items-center">
+                    <span class="mr-2">🔑</span> TV HESABINA GİRİŞ YAP
+                </a>
             </div>
-            <div class="flex space-x-1">
-                <button onclick="setLayout(1, this)" class="bg-[#2a2e39] text-gray-400 px-4 py-1.5 rounded text-xs font-bold active-btn">1</button>
-                <button onclick="setLayout(2, this)" class="bg-[#2a2e39] text-gray-400 px-4 py-1.5 rounded text-xs font-bold">2</button>
-                <button onclick="setLayout(3, this)" class="bg-[#2a2e39] text-gray-400 px-4 py-1.5 rounded text-xs font-bold">3</button>
-                <button onclick="setLayout(4, this)" class="bg-[#2a2e39] text-gray-400 px-4 py-1.5 rounded text-xs font-bold">4</button>
+            
+            <div class="flex space-x-1 bg-black/40 p-1 rounded border border-white/5">
+                <button onclick="setLayout(1, this)" class="text-gray-400 px-4 py-1 rounded text-xs font-bold active-btn">1</button>
+                <button onclick="setLayout(2, this)" class="text-gray-400 px-4 py-1 rounded text-xs font-bold">2</button>
+                <button onclick="setLayout(3, this)" class="text-gray-400 px-4 py-1 rounded text-xs font-bold">3</button>
+                <button onclick="setLayout(4, this)" class="text-gray-400 px-4 py-1 rounded text-xs font-bold">4</button>
             </div>
         </div>
 
         <div class="flex items-center gap-3">
-            <input type="text" id="aSym" placeholder="Sembol (NAS100, XAUUSD...)" class="flex-1 bg-black/40 border border-gray-700 rounded-lg px-4 py-2.5 text-sm outline-none text-blue-400 font-bold uppercase focus:border-blue-500 transition">
-            <button onclick="setSymFromInput()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg text-xs font-black uppercase transition">GİT</button>
-            <button onclick="toggleSide()" class="bg-[#2a2e39] text-white px-4 py-2.5 rounded-lg text-xs font-bold">PANEL ☰</button>
+            <div class="relative flex-1">
+                <input type="text" id="aSym" placeholder="Parite Yaz (Örn: NAS100, EURUSD, BTCUSDT)" 
+                    class="w-full bg-black/40 border border-gray-700 rounded-lg px-4 py-2.5 text-sm outline-none text-blue-400 font-bold uppercase input-glow transition">
+            </div>
+            <button onclick="setSymFromInput()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-lg text-xs font-black uppercase transition shadow-lg">GRAFİĞE GİT</button>
+            <button onclick="toggleSide()" class="bg-[#2a2e39] text-white px-4 py-2.5 rounded-lg text-xs font-bold">HABERLER ☰</button>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-hidden relative">
         <aside class="w-14 border-r border-[#2a2e39] bg-[#0c0d10] flex flex-col items-center py-6 space-y-8 font-black text-[10px] text-gray-600 shrink-0">
-            <button onclick="setSym('NASDAQ:NAS100')">NAS</button>
-            <button onclick="setSym('TVC:GOLD')">AU</button>
-            <button onclick="setSym('FX:EURUSD')">EU</button>
-            <button onclick="setSym('BINANCE:BTCUSDT')">BTC</button>
+            <button onclick="setSym('NASDAQ:NAS100')" class="hover:text-white">NQ</button>
+            <button onclick="setSym('FX:EURUSD')" class="hover:text-white">EU</button>
+            <button onclick="setSym('TVC:GOLD')" class="hover:text-white">AU</button>
+            <button onclick="setSym('BINANCE:BTCUSDT')" class="hover:text-white">₿</button>
         </aside>
 
         <main class="flex-1 bg-black">
@@ -79,12 +69,12 @@
         <aside id="side" class="side-panel closed">
             <div class="p-4 flex-1 overflow-y-auto space-y-6">
                 <section>
-                    <h3 class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-3 px-1">Teknik Özet</h3>
-                    <div id="tech-summary" class="h-64 rounded-xl bg-black/30 premium-border overflow-hidden"></div>
+                    <h3 class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mb-3">Teknik Analiz</h3>
+                    <div id="tech-summary" class="h-64 rounded bg-black/30 border border-white/5 overflow-hidden"></div>
                 </section>
                 <section>
-                    <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3 px-1">Haber Akışı</h3>
-                    <div class="h-80 rounded-xl bg-black/30 premium-border overflow-hidden">
+                    <h3 class="text-[10px] font-bold text-orange-500 uppercase tracking-widest mb-3">Haberler</h3>
+                    <div class="h-96 rounded bg-black/30 border border-white/5 overflow-hidden">
                         <div class="tradingview-widget-container">
                             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
                             { "feedMode": "all_symbols", "colorTheme": "dark", "isTransparent": true, "displayMode": "regular", "width": "100%", "height": "100%", "locale": "tr" }
@@ -97,7 +87,7 @@
     </div>
 
     <footer class="footer-bar">
-        <b>YASAL UYARI:</b> Yatırım tavsiyesi değildir. Trade Army V1 Premium - Çizim ve renkler için grafik içinden Google ile giriş yapıp şablonunuzu yükleyin.
+        <b>YASAL UYARI:</b> Yatırım tavsiyesi değildir. <b>Senkronizasyon için:</b> TV butonundan giriş yapın, ardından grafik üzerinde bulut simgesinden "Yerleşimi Yükle" deyin.
     </footer>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -106,11 +96,24 @@
 
         function initTV(id, sym) {
             new TradingView.widget({
-                "autosize": true, "symbol": sym, "interval": "15", "theme": "dark", "style": "1", "locale": "tr",
-                "toolbar_bg": "#131722", "enable_publishing": true, "withdateranges": true, "hide_side_toolbar": false,
-                "allow_symbol_change": true, "save_image": true, "container_id": id, "remember_last_used_chart": true,
-                "charts_storage_url": "https://saveload.tradingview.com", "charts_storage_api_version": "1.1",
-                "client_id": "tradingview.com", "user_id": "public_user_id",
+                "autosize": true,
+                "symbol": sym,
+                "interval": "15",
+                "theme": "dark",
+                "style": "1",
+                "locale": "tr",
+                "toolbar_bg": "#131722",
+                "enable_publishing": true,
+                "withdateranges": true,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "save_image": true,
+                "container_id": id,
+                "remember_last_used_chart": true,
+                "charts_storage_url": "https://saveload.tradingview.com",
+                "charts_storage_api_version": "1.1",
+                "client_id": "tradingview.com",
+                "user_id": "public_user_id",
                 "enabled_features": ["study_templates", "header_saveload", "use_localstorage_for_settings_save", "header_widget_dom_node"]
             });
             updateTech(sym);
@@ -118,7 +121,14 @@
 
         function setSymFromInput() {
             let s = document.getElementById('aSym').value.toUpperCase();
-            if(s) setSym(s);
+            if(!s) return;
+            // Akıllı Sembol Tamamlama
+            if(!s.includes(':')) {
+                if(["NAS100","SPX500","GER40"].includes(s)) s = "CAPITALCOM:" + s;
+                else if(["EURUSD","GBPUSD","USDJPY","XAUUSD"].includes(s)) s = "FX_IDC:" + s;
+                else if(["BTCUSDT","ETHUSDT"].includes(s)) s = "BINANCE:" + s;
+            }
+            setSym(s);
         }
 
         function setLayout(n, btn) {
