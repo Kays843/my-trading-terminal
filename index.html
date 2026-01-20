@@ -2,97 +2,44 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TRADE ARMY | V.1 - ALARM SYSTEM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRADE ARMY | V.1 - NOTIFICATION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; position: fixed; color: #d1d4dc; font-family: 'Inter', sans-serif; }
-        * { -webkit-tap-highlight-color: transparent; }
-        
+        html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; color: #d1d4dc; font-family: 'Inter', sans-serif; }
         #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background: #1e222d; }
         .grid-1 { grid-template-columns: 1fr; }
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-
-        .side-panel { width: 320px; background: #131722; border-left: 1px solid #1e222d; display: flex; flex-direction: column; }
-        @media (max-width: 1280px) { .side-panel { display: none; } }
-
-        .control-btn { background: #1e222d; color: #81858e; border: 1px solid #2a2e39; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .control-btn { background: #1e222d; color: #81858e; border: 1px solid #2a2e39; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .active-layout { background: #2962ff !important; color: white !important; }
-        .alarm-btn { background: #f23645 !important; color: white !important; border: none; animation: pulse 2s infinite; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-        /* Alarm Popup */
-        .alarm-popup { background: #1c202b; border: 1px solid #2962ff; position: absolute; top: 110px; right: 20px; z-index: 9999; display: none; width: 280px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .visible { display: block; }
-        
-        .brand-logo { height: 38px; width: auto; object-fit: contain; }
-        iframe { pointer-events: auto !important; }
+        .notify-btn { background: #ff9800 !important; color: black !important; border: none; font-size: 10px; }
     </style>
 </head>
 <body class="flex flex-col">
 
-    <div class="h-[42px] bg-[#131722] border-b border-[#1e222d] shrink-0">
-        <div class="tradingview-widget-container">
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-            { "symbols": [
-                { "proName": "NASDAQ:IXIC", "title": "NASDAQ" },
-                { "proName": "BITSTAMP:BTCUSD", "title": "BTC/USD" },
-                { "proName": "TVC:GOLD", "title": "ALTIN" },
-                { "proName": "FX_IDC:USDTRY", "title": "USD/TRY" }
-            ], "colorTheme": "dark", "isTransparent": true, "displayMode": "adaptive", "locale": "tr" }
-            </script>
-        </div>
-    </div>
-
     <header class="h-16 border-b border-[#1e222d] bg-[#131722] flex items-center justify-between px-4 shrink-0 z-50">
         <div class="flex items-center space-x-4">
-            <img src="BURAYA_LOGO_URL" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
-            <div class="flex flex-col leading-tight">
-                <span class="text-white font-black italic text-lg tracking-tighter uppercase">TRADE ARMY</span>
-                <span class="text-blue-500 text-[10px] font-bold tracking-[3px] ml-1">V.1</span>
+            <div class="flex flex-col">
+                <span class="text-white font-black italic text-lg tracking-tighter">TRADE ARMY</span>
+                <span class="text-blue-500 text-[10px] font-bold tracking-[3px]">SMART NOTIFY V.1</span>
             </div>
-            <div class="flex space-x-1 bg-black/20 p-1 rounded border border-gray-800 ml-4">
-                <button onclick="changeLayout(1, this)" class="control-btn active-layout">1</button>
-                <button onclick="changeLayout(2, this)" class="control-btn">2</button>
-                <button onclick="changeLayout(4, this)" class="control-btn">4</button>
-            </div>
+            <button onclick="requestNotifyPermission()" id="permBtn" class="control-btn notify-btn">🔔 BİLDİRİMLERİ AÇ</button>
         </div>
 
-        <div class="flex items-center space-x-3">
-            <button onclick="toggleAlarmPanel()" class="control-btn alarm-btn">🔔 ALARM KUR</button>
-            <div id="live-clock" class="text-right hidden sm:block">
-                <div class="text-white font-mono text-sm font-bold" id="clock-time">00:00:00</div>
-            </div>
+        <div class="flex items-center space-x-2 bg-black/40 p-2 rounded-lg border border-gray-800">
+            <input type="text" id="alarmSymbol" placeholder="BTCUSDT" class="bg-transparent text-xs w-20 outline-none text-blue-500 font-bold uppercase">
+            <input type="number" id="alarmPrice" placeholder="Fiyat" class="bg-transparent text-xs w-20 outline-none text-white font-bold">
+            <button onclick="addAlarm()" class="bg-blue-600 px-3 py-1 rounded text-[10px] font-bold text-white uppercase">Alarm Ekle</button>
         </div>
+
+        <div id="clock" class="text-white font-mono text-sm font-bold">00:00:00</div>
     </header>
 
-    <div id="alarmPanel" class="alarm-popup p-4">
-        <div class="text-blue-500 font-bold text-xs uppercase mb-3 flex justify-between">
-            <span>Sınırsız Alarm Sistemi</span>
-            <button onclick="toggleAlarmPanel()" class="text-gray-500">✕</button>
-        </div>
-        <div class="space-y-3">
-            <input type="text" id="alarmSymbol" placeholder="Örn: BTCUSD" class="w-full bg-black/40 border border-gray-700 p-2 text-xs rounded outline-none text-white uppercase">
-            <input type="number" id="alarmPrice" placeholder="Hedef Fiyat" class="w-full bg-black/40 border border-gray-700 p-2 text-xs rounded outline-none text-white">
-            <button onclick="addAlarm()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold py-2 rounded uppercase">Sisteme Ekle</button>
-        </div>
-        <div id="alarmList" class="mt-4 max-h-40 overflow-y-auto space-y-1 border-t border-gray-800 pt-2">
-            </div>
-    </div>
-
     <div class="flex flex-1 overflow-hidden relative">
-        <aside class="w-14 border-r border-[#1e222d] bg-[#0c0d10] flex flex-col items-center py-4 space-y-4 shrink-0 justify-between">
-            <div class="flex flex-col space-y-4 items-center w-full">
-                <button onclick="updateSymbol('NASDAQ:IXIC')" title="Nasdaq" class="icon-btn">📈</button>
-                <button onclick="updateSymbol('FX:EURUSD')" title="EUR/USD" class="icon-btn">🇪🇺</button>
-                <button onclick="updateSymbol('BINANCE:BTCUSDT')" title="BTC" class="icon-btn">₿</button>
-                <button onclick="updateSymbol('TVC:GOLD')" title="Altın" class="icon-btn">🟡</button>
-            </div>
-            <div class="mb-4 cursor-pointer hover:scale-110 transition" onclick="window.open('https://alternative.me/crypto/fear-and-greed-index/', '_blank')">
-                <img src="https://alternative.me/crypto/fear-and-greed-index.png" alt="Index" class="w-10 h-10 rounded-full border border-blue-500/30">
-            </div>
+        <aside class="w-14 border-r border-[#1e222d] bg-[#0c0d10] flex flex-col items-center py-4 space-y-4 shrink-0">
+            <button onclick="updateSymbol('BINANCE:BTCUSDT')" class="text-xl">₿</button>
+            <button onclick="updateSymbol('NASDAQ:IXIC')" class="text-xl">📈</button>
         </aside>
 
         <main class="flex-1 bg-black">
@@ -104,100 +51,97 @@
             </div>
         </main>
 
-        <aside class="side-panel shrink-0">
-            <div class="h-1/2 flex flex-col border-b border-[#1e222d]">
-                <div class="panel-header"><span>📅 Ekonomik Takvim</span></div>
-                <div class="flex-1">
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                    { "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "100%", "locale": "tr", "importanceFilter": "0,1" }
-                    </script>
-                </div>
-            </div>
-            <div class="h-1/2 flex flex-col">
-                <div class="panel-header"><span>🔥 Önemli Haberler</span></div>
-                <div class="flex-1 text-xs">
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
-                    { "feedMode": "all_symbols", "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "100%", "locale": "tr" }
-                    </script>
-                </div>
-            </div>
+        <aside class="w-[280px] bg-[#131722] border-left border-[#1e222d] p-3 overflow-y-auto">
+            <div class="text-[10px] font-bold text-gray-500 mb-4 uppercase tracking-widest">Alarm Takip Listesi</div>
+            <div id="alarm-list-container" class="space-y-2"></div>
         </aside>
     </div>
 
-    <audio id="alarmSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="alarmSound"><source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
         let alarmlar = JSON.parse(localStorage.getItem('trade_army_alarms')) || [];
-        let currentSymbol = 'NASDAQ:IXIC';
-        let currentCount = 1;
+        let currentSymbol = 'BINANCE:BTCUSDT';
 
-        function toggleAlarmPanel() { document.getElementById('alarmPanel').classList.toggle('visible'); updateAlarmList(); }
+        // BİLDİRİM İZNİ
+        function requestNotifyPermission() {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    document.getElementById('permBtn').style.display = 'none';
+                    new Notification("TRADE ARMY", { body: "Bildirimler aktif edildi!", icon: "https://via.placeholder.com/100" });
+                }
+            });
+        }
+
+        // BİNANCE CANLI VERİ BAĞLANTISI
+        const ws = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            alarmlar.forEach((alarm) => {
+                if (!alarm.active) return;
+                const parite = data.find(p => p.s === alarm.symbol);
+                if (parite) {
+                    const anlikFiyat = parseFloat(parite.c);
+                    // Alarm kontrolü
+                    if ((alarm.dir === 'up' && anlikFiyat >= alarm.price) || (alarm.dir === 'down' && anlikFiyat <= alarm.price)) {
+                        triggerAlarm(alarm);
+                    }
+                }
+            });
+        };
 
         function addAlarm() {
             const sym = document.getElementById('alarmSymbol').value.toUpperCase();
-            const prc = document.getElementById('alarmPrice').value;
-            if(!sym || !prc) return alert("Bilgileri doldur!");
-            
-            alarmlar.push({ id: Date.now(), symbol: sym, price: parseFloat(prc), active: true });
+            const prc = parseFloat(document.getElementById('alarmPrice').value);
+            if(!sym || !prc) return;
+
+            // Şimdiki fiyata göre yön tayini
+            const dir = 'up'; // Geliştirilebilir: Mevcut fiyat çekilip otomatik atanabilir
+            alarmlar.push({ id: Date.now(), symbol: sym, price: prc, active: true, dir: dir });
             localStorage.setItem('trade_army_alarms', JSON.stringify(alarmlar));
-            updateAlarmList();
+            renderAlarms();
+        }
+
+        function triggerAlarm(alarm) {
+            alarm.active = false;
+            localStorage.setItem('trade_army_alarms', JSON.stringify(alarmlar));
+            renderAlarms();
+            
+            // 1. Ses Çal
+            document.getElementById('alarmSound').play();
+            
+            // 2. Tarayıcı Bildirimi Gönder
+            if (Notification.permission === "granted") {
+                new Notification("🚨 HEDEF FİYAT AŞILDI!", {
+                    body: `${alarm.symbol} fiyatı ${alarm.price} seviyesine ulaştı.`,
+                    icon: "https://via.placeholder.com/100"
+                });
+            }
+        }
+
+        function renderAlarms() {
+            const container = document.getElementById('alarm-list-container');
+            container.innerHTML = alarmlar.map(a => `
+                <div class="bg-black/40 p-2 rounded border border-gray-800 flex justify-between items-center ${a.active ? '' : 'opacity-20'}">
+                    <span class="text-xs font-mono">${a.symbol} @ ${a.price}</span>
+                    <button onclick="removeAlarm(${a.id})" class="text-red-500 text-[10px]">SİL</button>
+                </div>
+            `).join('');
         }
 
         function removeAlarm(id) {
             alarmlar = alarmlar.filter(a => a.id !== id);
             localStorage.setItem('trade_army_alarms', JSON.stringify(alarmlar));
-            updateAlarmList();
+            renderAlarms();
         }
-
-        function updateAlarmList() {
-            const list = document.getElementById('alarmList');
-            list.innerHTML = alarmlar.map(a => `
-                <div class="flex justify-between items-center text-[10px] bg-black/20 p-2 rounded border border-gray-800">
-                    <span class="text-white">${a.symbol} @ ${a.price}</span>
-                    <button onclick="removeAlarm(${a.id})" class="text-red-500">SİL</button>
-                </div>
-            `).join('');
-        }
-
-        // BASİT ALARM KONTROLÜ (Görsel ticker üzerinden simüle edilir)
-        // Not: Tam doğruluk için profesyonel WebSocket API gerekir ancak bu yöntem terminali kasmadan çalışır.
-        setInterval(() => {
-            // Alarm kontrol mekanizması burada tetiklenebilir
-            // Gerçek zamanlı veri akışı için TradingView widget verileriyle senkronize edilir.
-        }, 5000);
-
-        function updateClock() {
-            document.getElementById('clock-time').innerText = new Date().toLocaleTimeString('tr-TR', { hour12: false });
-        }
-        setInterval(updateClock, 1000);
 
         function initChart(id, symbol) {
-            new TradingView.widget({
-                "autosize": true, "symbol": symbol, "interval": "240", "theme": "dark", "style": "1", "locale": "tr",
-                "toolbar_bg": "#131722", "container_id": id, "withdateranges": true, "allow_symbol_change": true,
-                "overrides": { "paneProperties.background": "#131722" }
-            });
+            new TradingView.widget({ "autosize": true, "symbol": symbol, "interval": "60", "theme": "dark", "container_id": id });
         }
 
-        function changeLayout(count, btn) {
-            currentCount = count;
-            document.getElementById('chart-grid').className = `grid-${count}`;
-            document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active-layout'));
-            if(btn) btn.classList.add('active-layout');
-            for (let i = 1; i <= 4; i++) {
-                const el = document.getElementById(`tv_${i}`);
-                if (i <= count) { el.classList.remove('hidden'); initChart(`tv_${i}`, currentSymbol); }
-                else { el.classList.add('hidden'); el.innerHTML = ""; }
-            }
-        }
-
-        function updateSymbol(s) {
-            currentSymbol = s;
-            for (let i = 1; i <= currentCount; i++) initChart(`tv_${i}`, s);
-        }
-
-        window.onload = () => { initChart('tv_1', currentSymbol); updateClock(); updateAlarmList(); };
+        setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+        window.onload = () => { renderAlarms(); initChart('tv_1', currentSymbol); if(Notification.permission === "granted") document.getElementById('permBtn').style.display='none'; };
     </script>
 </body>
 </html>
