@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRADE ARMY | V1 LOGIN</title>
+    <title>TRADE ARMY V1 | FULL SYNC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; color: #d1d4dc; font-family: sans-serif; }
-        #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background: #1e2220; }
+        #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background: #1e222d; }
         .grid-1 { grid-template-columns: 1fr; }
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-        .active-btn { background: #2962ff !important; color: white !important; }
+        .active-btn { background: #2962ff !important; color: white !important; border-color: #2962ff !important; }
         .header-bg { background: #131722; border-bottom: 1px solid #2a2e39; }
-        .side-panel { width: 300px; background: #131722; border-left: 1px solid #2a2e39; transition: 0.3s; z-index: 100; overflow-y: auto; }
+        .side-panel { width: 320px; background: #131722; border-left: 1px solid #2a2e39; transition: 0.3s; z-index: 100; overflow-y: auto; }
         .closed { width: 0; overflow: hidden; border-left: none; }
-        .premium-input { background: rgba(0,0,0,0.5); border: 1px solid #363a45; border-radius: 4px; padding: 6px 12px; font-size: 13px; color: white; outline: none; }
-        .premium-input:focus { border-color: #2962ff; }
+        .sync-btn { background: #00c2ff; color: black; font-weight: 800; transition: 0.2s; }
+        .sync-btn:hover { background: white; transform: scale(1.02); }
     </style>
 </head>
 <body class="flex flex-col" onclick="enableAudio()">
@@ -27,7 +27,8 @@
             { "symbols": [
                 {"proName": "FXCM:NAS100", "title": "NAS100"},
                 {"proName": "FXCM:XAUUSD", "title": "GOLD"},
-                {"proName": "BINANCE:BTCUSDT", "title": "BTC"}
+                {"proName": "BINANCE:BTCUSDT", "title": "BTC"},
+                {"proName": "FXCM:EURUSD", "title": "EURUSD"}
             ], "colorTheme": "dark", "isTransparent": true, "locale": "tr" }
             </script>
         </div>
@@ -35,43 +36,29 @@
 
     <header class="p-4 header-bg shrink-0">
         <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-black italic tracking-tighter">TRADE ARMY <span class="text-blue-500">/ V1 LOGIN</span></h1>
+            <h1 class="text-2xl font-black italic tracking-tighter">TRADE ARMY <span class="text-blue-500">/ FULL SYNC</span></h1>
             <div class="flex space-x-2">
-                <button onclick="setLayout(1, this)" class="bg-[#2a2e39] px-4 py-1 rounded text-xs font-bold active-btn">1 EKRAN</button>
-                <button onclick="setLayout(2, this)" class="bg-[#2a2e39] px-4 py-1 rounded text-xs font-bold">2 EKRAN</button>
-                <button onclick="setLayout(4, this)" class="bg-[#2a2e39] px-4 py-1 rounded text-xs font-bold">4 EKRAN</button>
+                <a href="https://www.tradingview.com/chart/" target="_blank" class="sync-btn px-6 py-2 rounded text-xs uppercase flex items-center shadow-lg shadow-blue-500/20">
+                    <span class="mr-2">🔗</span> TV'DE OTURUM AÇ VE SENKRONİZE ET
+                </a>
+                <div class="h-8 w-[1px] bg-gray-700 mx-2"></div>
+                <button onclick="setLayout(1, this)" class="bg-[#2a2e39] border border-gray-600 px-4 py-1 rounded text-xs font-bold active-btn">1</button>
+                <button onclick="setLayout(2, this)" class="bg-[#2a2e39] border border-gray-600 px-4 py-1 rounded text-xs font-bold">2</button>
+                <button onclick="setLayout(4, this)" class="bg-[#2a2e39] border border-gray-600 px-4 py-1 rounded text-xs font-bold">4</button>
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-4 bg-black/20 p-3 rounded-lg border border-white/5">
-            <div class="flex items-center space-x-2">
-                <span class="text-[11px] font-bold text-gray-500 uppercase">Sembol:</span>
-                <input type="text" id="aSym" placeholder="FXCM:NAS100" class="premium-input w-44 font-bold text-blue-400">
-            </div>
-            
-            <div class="flex items-center space-x-2">
-                <span class="text-[11px] font-bold text-gray-500 uppercase">Alarm Fiyat:</span>
-                <input type="number" id="aPrc" placeholder="0.00" class="premium-input w-28">
-            </div>
-
-            <button onclick="setSymFromInput()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded text-xs font-bold uppercase transition">Grafiğe Git</button>
-            <button onclick="addAlarm()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-xs font-bold uppercase transition">Alarm Kur</button>
-            
-            <button onclick="triggerLogin()" class="bg-[#00c2ff] hover:bg-blue-400 px-6 py-2 rounded text-xs font-bold text-black uppercase flex items-center space-x-2 transition">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.5,19c-3.037,0-5.5-2.463-5.5-5.5c0-3.037,2.463-5.5,5.5-5.5s5.5,2.463,5.5,5.5C23,16.537,20.537,19,17.5,19z M17.5,10 c-1.93,0-3.5,1.57-3.5,3.5s1.57,3.5,3.5,3.5s3.5-1.57,3.5-3.5S19.43,10,17.5,10z M11,14.5H5.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5 H11c0.276,0,0.5,0.224,0.5,0.5S11.276,14.5,11,14.5z M11,11.5H5.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5H11 c0.276,0,0.5,0.224,0.5,0.5S11.276,11.5,11,11.5z M11,17.5H5.5c-0.276,0-0.5-0.224-0.5-0.5s0.224-0.5,0.5-0.5H11 c0.276,0,0.5,0.224,0.5,0.5S11.276,17.5,11,17.5z"/></svg>
-                <span>☁ TV Giriş</span>
-            </button>
+        <div class="flex items-center gap-3 bg-black/30 p-2 rounded-lg border border-white/5">
+            <input type="text" id="aSym" placeholder="FXCM:NAS100" class="bg-black/50 border border-gray-700 rounded px-3 py-2 text-sm w-48 outline-none text-blue-400 font-bold uppercase">
+            <input type="number" id="aPrc" placeholder="Alarm Fiyat" class="bg-black/50 border border-gray-700 rounded px-3 py-2 text-sm w-32 outline-none text-white">
+            <button onclick="setSymFromInput()" class="bg-blue-600 px-5 py-2 rounded text-xs font-bold uppercase hover:bg-blue-500">GİT</button>
+            <button onclick="addAlarm()" class="bg-gray-700 px-5 py-2 rounded text-xs font-bold uppercase hover:bg-gray-600">ALARM KUR</button>
+            <div class="flex-1"></div>
+            <button onclick="toggleSide()" class="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest">PANEL ☰</button>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden relative">
-        <aside class="w-12 border-r border-[#2a2e39] bg-[#0c0d10] flex flex-col items-center py-4 space-y-6 shrink-0">
-            <button onclick="setSym('FXCM:NAS100')" class="hover:text-blue-500 transition">📊</button>
-            <button onclick="setSym('FXCM:XAUUSD')" class="hover:text-yellow-500 transition">🟡</button>
-            <button onclick="setSym('FXCM:EURUSD')" class="hover:text-blue-400 transition">🇪🇺</button>
-            <button onclick="setSym('BINANCE:BTCUSDT')" class="hover:text-orange-500 transition">₿</button>
-        </aside>
-
+    <div class="flex flex-1 overflow-hidden">
         <main class="flex-1 bg-black">
             <div id="chart-grid" class="grid-1 h-full w-full">
                 <div id="tv_1" class="w-full h-full"></div>
@@ -83,16 +70,16 @@
 
         <aside id="side" class="side-panel p-4 closed">
             <div class="mb-6">
-                <div class="text-[10px] font-bold text-blue-500 uppercase mb-3">Teknik Durum</div>
-                <div id="tech-summary" class="h-48 rounded bg-black/20"></div>
+                <div class="text-[10px] font-bold text-blue-500 uppercase mb-3 tracking-tighter">Canlı Teknik Analiz</div>
+                <div id="tech-summary" class="h-56 rounded bg-black/20"></div>
             </div>
-            <div class="text-[10px] font-bold text-gray-500 uppercase mb-3 border-b border-gray-800 pb-2">Kurulu Alarmlar</div>
+            <div class="text-[10px] font-bold text-gray-500 uppercase mb-3 border-b border-gray-800 pb-2">Aktif Alarmlar</div>
             <div id="list" class="space-y-2"></div>
         </aside>
     </div>
 
     <footer class="disclaimer-bar shrink-0">
-        <b>YASAL UYARI:</b> Yatırım tavsiyesi değildir. Trade Army V1 profesyonel takip terminalidir.
+        <b>YASAL UYARI:</b> Yatırım tavsiyesi değildir. TradingView senkronizasyonu için ana sitede oturum açmış olmanız gerekir.
     </footer>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
@@ -101,21 +88,36 @@
         let alarms = JSON.parse(localStorage.getItem('v1_alarms')) || [];
         let audioOk = false;
 
-        function enableAudio() { if(!audioOk) { speak("Sistem Hazır"); audioOk = true; } }
+        function enableAudio() { if(!audioOk) { speak("Sistem Senkronize"); audioOk = true; } }
         function speak(t) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'tr-TR'; window.speechSynthesis.speak(u); }
 
         function initTV(id, sym) {
             new TradingView.widget({
-                "autosize": true, "symbol": sym, "interval": "15", "theme": "dark", "style": "1", "locale": "tr",
-                "toolbar_bg": "#131722", "enable_publishing": true, "withdateranges": true, "hide_side_toolbar": false,
-                "allow_symbol_change": true, "save_image": false, "container_id": id, "show_popup_button": true
+                "autosize": true,
+                "symbol": sym,
+                "interval": "15",
+                "theme": "dark",
+                "style": "1",
+                "locale": "tr",
+                "toolbar_bg": "#131722",
+                "enable_publishing": true, // Çizimleri kaydeder
+                "allow_symbol_change": true,
+                "withdateranges": true,
+                "hide_side_toolbar": false, // Çizim araçlarını gösterir
+                "watchlist": [
+                    "FXCM:NAS100",
+                    "FXCM:XAUUSD",
+                    "FXCM:EURUSD",
+                    "BINANCE:BTCUSDT"
+                ],
+                "details": true,
+                "hotlist": true,
+                "calendar": true,
+                "show_popup_button": true,
+                "container_id": id,
+                "remember_last_used_chart": true // EN ÖNEMLİSİ: TV'deki son halini hatırlar
             });
             updateTech(sym);
-        }
-
-        function triggerLogin() {
-            // Kullanıcıyı grafik içindeki login mekanizmasına yönlendirir
-            alert("TradingView hesabınıza girmek için grafik üzerinde SAĞ TIKLAYIP 'Grafik Yerleşimini Sakla' diyebilir veya sağ üstteki BULUT simgesine dokunabilirsiniz.");
         }
 
         function setSymFromInput() {
@@ -127,7 +129,7 @@
             config.layout = n;
             document.getElementById('chart-grid').className = `grid-${n}`;
             document.querySelectorAll('header button').forEach(b => b.classList.remove('active-btn'));
-            if(btn) btn.classList.add('active-btn');
+            if(btn && btn.tagName === 'BUTTON') btn.classList.add('active-btn');
             for (let i = 1; i <= 4; i++) {
                 const el = document.getElementById(`tv_${i}`);
                 if (i <= n) { el.classList.remove('hidden'); initTV(`tv_${i}`, config.symbol); }
@@ -161,13 +163,13 @@
             alarms.push({ id: Date.now(), sym: s, prc: p, active: true });
             localStorage.setItem('v1_alarms', JSON.stringify(alarms));
             drawAlarms();
-            speak(s + " alarmı kuruldu");
+            speak(s.split(":")[1] || s + " kuruldu");
         }
 
         function drawAlarms() {
             document.getElementById('list').innerHTML = alarms.map(a => `
-                <div class="bg-white/5 p-2 rounded flex justify-between items-center text-xs">
-                    <span><b>${a.sym}</b>: ${a.prc}</span>
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center text-xs border border-white/5">
+                    <span><b>${a.sym.split(":")[1] || a.sym}</b>: ${a.prc}</span>
                     <button onclick="delAlarm(${a.id})" class="text-red-500 font-bold px-2">X</button>
                 </div>
             `).join('');
