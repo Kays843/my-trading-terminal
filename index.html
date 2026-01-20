@@ -3,121 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRADE ARMY V1 | SELECTABLE GRID</title>
+    <title>TRADE ARMY V1 | SECURE GATE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #000; color: #d1d4dc; font-family: sans-serif; overflow: hidden; height: 100vh; margin: 0; display: flex; flex-direction: column; }
-        .header { height: 50px; background: #131722; border-bottom: 1px solid #2a2e39; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; shrink-0; }
-        .main-content { flex: 1; position: relative; background: #1e222d; overflow: hidden; }
+        body { background: #08090d; color: #d1d4dc; font-family: sans-serif; overflow: hidden; height: 100vh; margin: 0; }
+        /* GİRİŞ EKRANI (OVERLAY) */
+        #login-overlay { position: fixed; inset: 0; background: rgba(8, 9, 13, 0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .login-card { background: #131722; padding: 40px; border-radius: 12px; border: 1px solid #2962ff; text-align: center; box-shadow: 0 0 30px rgba(41, 98, 255, 0.2); }
         
-        /* DİNAMİK GRID YAPISI */
-        #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; }
-        .grid-1 { grid-template-columns: 1fr; }
-        .grid-2 { grid-template-columns: 1fr 1fr; }
-        .grid-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; } /* 3'lüde 4. slot boş kalır veya 1 büyük 2 küçük yapılır */
-        .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-
-        .chart-box { background: #000; width: 100%; height: 100%; }
-        .btn-layout { background: #1e222d; color: #5d606b; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; transition: 0.2s; border: 1px solid #2a2e39; }
-        .btn-layout:hover, .active-layout { background: #2962ff; color: white; border-color: #2962ff; }
+        /* ANA TERMİNAL */
+        .terminal-container { display: none; flex-direction: column; height: 100vh; }
+        .header { height: 60px; background: #131722; border-bottom: 1px solid #2a2e39; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .chart-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1px; background: #1e222d; }
         
-        .footer-fixed { height: 30px; background: #0c0d10; border-top: 1px solid #2a2e39; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #5d606b; shrink-0; }
+        .profile-area { display: flex; align-items: center; background: #1e222d; padding: 5px 15px; border-radius: 20px; border: 1px solid #2a2e39; }
+        .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 10px #22c55e; }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <div class="flex items-center space-x-3">
-            <h1 class="text-white font-black italic tracking-tighter text-lg uppercase">Trade Army <span class="text-blue-500">V1</span></h1>
-            <button onclick="window.open('https://www.tradingview.com/accounts/signin/', '_blank')" class="bg-blue-600 text-white text-[10px] px-3 py-1.5 rounded font-bold uppercase">1. HESABA GİRİŞ YAP</button>
-            <button onclick="location.reload()" class="bg-gray-800 text-gray-300 text-[10px] px-3 py-1.5 rounded font-bold border border-white/10">2. YENİLE</button>
+    <div id="login-overlay">
+        <div class="login-card">
+            <h1 class="text-3xl font-black italic text-white mb-2 uppercase tracking-tighter">TRADE ARMY <span class="text-blue-500">V1</span></h1>
+            <p class="text-gray-400 text-sm mb-8 px-4">Senkronizasyonun çalışması için TradingView hesabınıza giriş yapmalısınız.</p>
+            <button onclick="openTVLogin()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full transition-all transform hover:scale-105 mb-4">
+                TRADINGVIEW İLE GİRİŞ YAP
+            </button>
+            <div class="text-[10px] text-gray-500 uppercase tracking-widest cursor-pointer hover:text-white" onclick="showTerminal()">Giriş Yaptım, Terminali Aç</div>
         </div>
+    </div>
 
-        <div class="flex items-center space-x-2 bg-black/40 p-1 rounded border border-white/5">
-            <span class="text-[9px] text-gray-500 font-bold mr-2 uppercase">Ekran Sayısı:</span>
-            <button onclick="updateLayout(1, this)" class="btn-layout active-layout">1</button>
-            <button onclick="updateLayout(2, this)" class="btn-layout">2</button>
-            <button onclick="updateLayout(3, this)" class="btn-layout">3</button>
-            <button onclick="updateLayout(4, this)" class="btn-layout">4</button>
+    <div id="main-terminal" class="terminal-container">
+        <header class="header">
+            <div class="flex items-center space-x-4">
+                <span class="text-white font-black italic tracking-tighter text-xl">TRADE ARMY <span class="text-blue-500 text-xs">ICT PRO</span></span>
+                <div class="flex space-x-1 ml-4 bg-black/30 p-1 rounded">
+                    <button onclick="changeGrid(1)" class="px-3 py-1 text-xs font-bold text-gray-500 hover:text-white">1</button>
+                    <button onclick="changeGrid(4)" class="px-3 py-1 text-xs font-bold text-blue-500">4</button>
+                </div>
+            </div>
+
+            <div class="profile-area">
+                <div class="status-dot"></div>
+                <span id="profile-name" class="text-xs font-bold text-white uppercase tracking-wider">HESAP AKTİF (SYNC)</span>
+            </div>
+        </header>
+
+        <div id="chart-container" class="chart-grid">
+            <div id="c1" class="w-full h-full bg-black"></div>
+            <div id="c2" class="w-full h-full bg-black"></div>
+            <div id="c3" class="w-full h-full bg-black"></div>
+            <div id="c4" class="w-full h-full bg-black"></div>
         </div>
-    </header>
-
-    <main class="main-content">
-        <div id="chart-grid" class="grid-1">
-            <div id="box_1" class="chart-box"></div>
-            <div id="box_2" class="chart-box hidden"></div>
-            <div id="box_3" class="chart-box hidden"></div>
-            <div id="box_4" class="chart-box hidden"></div>
-        </div>
-    </main>
-
-    <footer class="footer-fixed">
-        <span class="text-yellow-600 font-bold mr-2">YASAL UYARI:</span> Yatırım tavsiyesi değildir. Senkronizasyon için Bulut simgesini kullanın.
-    </footer>
+    </div>
 
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let currentSymbol = 'CAPITALCOM:US100';
-        let currentLayout = 1;
-
-        function initChart(id, sym) {
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": sym,
-                "interval": "1",
-                "theme": "dark",
-                "style": "1",
-                "locale": "tr",
-                "toolbar_bg": "#131722",
-                "hide_side_toolbar": false,
-                "allow_symbol_change": true,
-                "container_id": id,
-                "withdateranges": true,
-                "show_popup_button": true,
-                "remember_last_used_chart": true,
-                "charts_storage_url": "https://saveload.tradingview.com",
-                "charts_storage_api_version": "1.1",
-                "client_id": "tradingview.com",
-                "user_id": "public_user_id",
-                "enabled_features": [
-                    "header_saveload", 
-                    "auto_save_and_load_chart",
-                    "header_resolutions",
-                    "header_settings",
-                    "header_indicators",
-                    "header_undo_redo"
-                ]
-            });
+        function openTVLogin() {
+            window.open('https://www.tradingview.com/accounts/signin/', '_blank');
         }
 
-        function updateLayout(n, btn) {
-            currentLayout = n;
-            const grid = document.getElementById('chart-grid');
-            
-            // Buton Stilini Güncelle
-            document.querySelectorAll('.btn-layout').forEach(b => b.classList.remove('active-layout'));
-            if(btn) btn.classList.add('active-layout');
+        function showTerminal() {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-terminal').style.display = 'flex';
+            initCharts();
+        }
 
-            // Grid Sınıfını Güncelle
-            grid.className = `grid-${n}`;
-
-            // Chartları Yönet
+        function initCharts() {
+            const symbols = ['CAPITALCOM:US100', 'FX:EURUSD', 'TVC:GOLD', 'BINANCE:BTCUSDT'];
             for(let i=1; i<=4; i++) {
-                const box = document.getElementById(`box_${i}`);
-                if(i <= n) {
-                    box.classList.remove('hidden');
-                    initChart(`box_${i}`, currentSymbol);
-                } else {
-                    box.classList.add('hidden');
-                    box.innerHTML = ""; // Kaynak tüketimini önlemek için temizle
-                }
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": symbols[i-1],
+                    "interval": "1",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "tr",
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "container_id": "c" + i,
+                    "remember_last_used_chart": true,
+                    "charts_storage_url": "https://saveload.tradingview.com",
+                    "charts_storage_api_version": "1.1",
+                    "client_id": "tradingview.com",
+                    "user_id": "public_user_id",
+                    "enabled_features": ["header_saveload", "auto_save_and_load_chart", "header_indicators", "header_resolutions"]
+                });
             }
         }
 
-        // İlk açılışta 1'li ekranı yükle
-        window.onload = () => {
-            updateLayout(1);
-        };
+        function changeGrid(n) {
+            const grid = document.getElementById('chart-container');
+            if(n === 1) {
+                grid.style.gridTemplateColumns = '1fr';
+                grid.style.gridTemplateRows = '1fr';
+                document.getElementById('c2').style.display = 'none';
+                document.getElementById('c3').style.display = 'none';
+                document.getElementById('c4').style.display = 'none';
+            } else {
+                grid.style.gridTemplateColumns = '1fr 1fr';
+                grid.style.gridTemplateRows = '1fr 1fr';
+                document.getElementById('c2').style.display = 'block';
+                document.getElementById('c3').style.display = 'block';
+                document.getElementById('c4').style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>
