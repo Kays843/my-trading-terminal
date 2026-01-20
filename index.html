@@ -3,47 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TRADE ARMY | V.1</title>
+    <title>TRADE ARMY V1 | PREMIUM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; color: #d1d4dc; font-family: 'Inter', sans-serif; }
+        html, body { background: #0c0d10; margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; color: #d1d4dc; font-family: sans-serif; }
         #chart-grid { display: grid; height: 100%; width: 100%; gap: 1px; background: #1e222d; }
         .grid-1 { grid-template-columns: 1fr; }
         .grid-2 { grid-template-columns: 1fr 1fr; }
         .grid-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-        .active-layout { background: #2962ff !important; color: white !important; }
-        .side-panel { width: 280px; background: #131722; border-left: 1px solid #1e222d; transition: 0.3s; }
-        .side-panel.closed { width: 0; overflow: hidden; border-left: none; }
-        .alarm-flash { animation: flash 0.6s infinite; }
-        @keyframes flash { 0% { background: #0c0d10; } 50% { background: #1e3a8a; } 100% { background: #0c0d10; } }
-        .log-item { font-size: 10px; padding: 4px; border-bottom: 1px solid #2a2e39; color: #6b7280; }
+        .active-btn { background: #2962ff !important; color: white !important; }
+        .side-panel { width: 320px; background: #131722; border-left: 1px solid #1e222d; transition: 0.3s; z-index: 100; overflow-y: auto; }
+        .closed { width: 0; overflow: hidden; border-left: none; }
+        .disclaimer-bar { background: #131722; color: #63676a; font-size: 10px; padding: 5px; text-align: center; border-top: 1px solid #1e222d; }
+        .premium-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
     </style>
 </head>
-<body class="flex flex-col" id="mainBody">
+<body class="flex flex-col" onclick="enableAudio()">
 
-    <header class="h-16 border-b border-[#1e222d] bg-[#131722] flex items-center justify-between px-4 shrink-0 z-50">
+    <div class="h-10 bg-[#131722] border-b border-[#1e222d] shrink-0">
+        <div class="tradingview-widget-container">
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            { "symbols": [
+                {"proName": "FX_IDC:EURUSD", "title": "EUR/USD"},
+                {"proName": "FXCM:NAS100", "title": "NAS100"},
+                {"proName": "FXCM:XAUUSD", "title": "ALTIN"},
+                {"proName": "BINANCE:BTCUSDT", "title": "BTC"}
+            ], "colorTheme": "dark", "isTransparent": true, "locale": "tr" }
+            </script>
+        </div>
+    </div>
+
+    <header class="h-14 border-b border-[#1e222d] bg-[#131722] flex items-center justify-between px-4 shrink-0">
         <div class="flex items-center space-x-4">
-            <div class="flex flex-col">
-                <span class="text-white font-black italic text-lg uppercase tracking-tighter">TRADE ARMY</span>
-                <span class="text-blue-500 text-[10px] font-bold">FOREX & CRYPTO ACTIVE</span>
-            </div>
-            <div class="flex space-x-1 bg-black/20 p-1 rounded border border-gray-800 ml-4">
-                <button onclick="changeLayout(1, this)" id="btn-1" class="bg-[#1e222d] px-3 py-1 rounded text-xs active-layout">1</button>
-                <button onclick="changeLayout(2, this)" id="btn-2" class="bg-[#1e222d] px-3 py-1 rounded text-xs">2</button>
-                <button onclick="changeLayout(4, this)" id="btn-4" class="bg-[#1e222d] px-3 py-1 rounded text-xs">4</button>
+            <span class="text-white font-bold italic tracking-tighter">TRADE ARMY <span class="text-blue-500">V1 PREMIUM</span></span>
+            <div class="flex space-x-1 ml-4 bg-black/20 p-1 rounded">
+                <button onclick="setLayout(1, this)" id="b1" class="bg-[#1e222d] px-3 py-1 rounded text-xs active-btn">1</button>
+                <button onclick="setLayout(2, this)" id="b2" class="bg-[#1e222d] px-3 py-1 rounded text-xs">2</button>
+                <button onclick="setLayout(4, this)" id="b4" class="bg-[#1e222d] px-3 py-1 rounded text-xs">4</button>
             </div>
         </div>
 
-        <div class="flex items-center space-x-2 bg-black/40 p-2 rounded border border-gray-800" onclick="initAudio()">
-            <input type="text" id="alarmSym" placeholder="BTC / XAUUSD / NAS100" class="bg-transparent text-xs w-40 outline-none text-blue-400 font-bold uppercase">
-            <input type="number" id="alarmPrice" placeholder="Fiyat" class="bg-transparent text-xs w-24 outline-none text-white font-bold">
-            <button onclick="saveAlarm()" class="bg-blue-600 px-3 py-1.5 rounded text-[10px] font-bold text-white uppercase active:scale-95">Alarm Kur</button>
+        <div class="flex items-center space-x-2">
+            <input type="text" id="aSym" placeholder="FXCM:NAS100" class="bg-black/40 border border-gray-700 text-xs p-1.5 w-36 rounded outline-none uppercase text-blue-400 font-bold">
+            <input type="number" id="aPrc" placeholder="Fiyat" class="bg-black/40 border border-gray-700 text-xs p-1.5 w-24 rounded outline-none text-white">
+            <button onclick="addAlarm()" class="bg-blue-600 px-3 py-1.5 rounded text-xs font-bold uppercase active:scale-95">Alarm</button>
         </div>
 
-        <button onclick="toggleSidePanel()" class="bg-[#1e222d] px-3 py-1.5 rounded text-xs font-bold uppercase">Liste</button>
+        <button onclick="toggleSide()" class="text-xs font-bold text-blue-500 bg-blue-500/10 px-3 py-1.5 rounded">PANEL</button>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
+        <aside class="w-12 border-r border-[#1e222d] bg-[#0c0d10] flex flex-col items-center py-4 space-y-6 shrink-0">
+            <button onclick="setSym('FXCM:NAS100')" class="text-xl">📊</button>
+            <button onclick="setSym('FXCM:XAUUSD')" class="text-xl">🟡</button>
+            <button onclick="setSym('FXCM:EURUSD')" class="text-xl">🇪🇺</button>
+            <button onclick="setSym('BINANCE:BTCUSDT')" class="text-xl">₿</button>
+        </aside>
+
         <main class="flex-1 bg-black">
             <div id="chart-grid" class="grid-1 h-full w-full">
                 <div id="tv_1" class="w-full h-full"></div>
@@ -53,135 +69,133 @@
             </div>
         </main>
 
-        <aside id="sidePanel" class="side-panel p-3 flex flex-col">
-            <div class="text-[10px] font-bold text-gray-500 mb-2 tracking-widest uppercase border-b border-gray-800 pb-2">Kurulu Alarmlar</div>
-            <div id="alarmList" class="flex-1 space-y-2 overflow-y-auto mb-4"></div>
-            <div class="text-[9px] font-bold text-gray-600 mb-2 uppercase">Canlı Fiyat Takip</div>
-            <div id="priceLog" class="h-32 bg-black/20 rounded overflow-y-auto border border-gray-800 p-1"></div>
+        <aside id="side" class="side-panel p-4 closed">
+            <div class="premium-card">
+                <div class="text-[10px] font-bold text-blue-500 uppercase mb-2">Teknik Özet</div>
+                <div class="h-32">
+                    <div class="tradingview-widget-container" id="tech-summary">
+                        </div>
+                </div>
+            </div>
+
+            <div class="premium-card">
+                <div class="text-[10px] font-bold text-orange-500 uppercase mb-2">Ekonomik Takvim</div>
+                <div class="h-[300px]">
+                    <div class="tradingview-widget-container">
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                        { "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "100%", "locale": "tr", "importanceFilter": "-1,0,1" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-[10px] font-bold text-gray-500 mb-2 uppercase border-b border-gray-800 pb-2">Alarmlar</div>
+            <div id="list" class="space-y-2"></div>
         </aside>
     </div>
 
+    <footer class="disclaimer-bar">
+        <b>YASAL UYARI:</b> Yatırım tavsiyesi değildir. FXCM ve Binance verileri kullanılmaktadır.
+    </footer>
+
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        let config = JSON.parse(localStorage.getItem('ta_config')) || { layout: 1, symbol: 'BINANCE:BTCUSDT' };
-        let alarmlar = JSON.parse(localStorage.getItem('ta_alarms')) || [];
-        let audioAllowed = false;
+        let config = { layout: 1, symbol: 'FXCM:NAS100' };
+        let alarms = JSON.parse(localStorage.getItem('v1_alarms')) || [];
+        let audioOk = false;
 
-        function initAudio() {
-            if(!audioAllowed) {
-                const u = new SpeechSynthesisUtterance("Sistem Aktif");
-                u.lang = 'tr-TR';
-                window.speechSynthesis.speak(u);
-                audioAllowed = true;
-            }
-        }
+        function enableAudio() { if(!audioOk) { speak("Sistem aktif"); audioOk = true; } }
 
-        function speak(text) {
-            if(!audioAllowed) return;
+        function speak(t) {
             window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'tr-TR'; u.rate = 1;
+            const u = new SpeechSynthesisUtterance(t);
+            u.lang = 'tr-TR';
             window.speechSynthesis.speak(u);
         }
 
-        function initChart(id, symbol) {
+        function initTV(id, sym) {
             new TradingView.widget({
-                "autosize": true, "symbol": symbol, "interval": "60", "theme": "dark", "container_id": id,
-                "locale": "tr", "toolbar_bg": "#131722", "allow_symbol_change": true, "withdateranges": true
+                "autosize": true, "symbol": sym, "interval": "15", "theme": "dark", 
+                "container_id": id, "locale": "tr", "allow_symbol_change": true, "withdateranges": true
             });
+            updateTechnicalSummary(sym);
         }
 
-        function saveAlarm() {
-            initAudio();
-            const sym = document.getElementById('alarmSym').value.toUpperCase();
-            const prc = parseFloat(document.getElementById('alarmPrice').value);
-            if(!sym || !prc) return;
-            alarmlar.push({ id: Date.now(), symbol: sym, price: prc, active: true });
-            localStorage.setItem('ta_alarms', JSON.stringify(alarmlar));
-            renderAlarms();
-            speak(sym + " alarmı eklendi");
+        function updateTechnicalSummary(sym) {
+            const container = document.getElementById('tech-summary');
+            container.innerHTML = "";
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                "interval": "1h", "width": "100%", "isTransparent": true, "height": "100%",
+                "symbol": sym, "showIntervalTabs": true, "locale": "tr", "colorTheme": "dark"
+            });
+            container.appendChild(script);
         }
 
-        function renderAlarms() {
-            const list = document.getElementById('alarmList');
-            list.innerHTML = alarmlar.map(a => `
-                <div class="bg-black/30 p-2 rounded border border-gray-800 flex justify-between items-center ${!a.active ? 'opacity-20' : ''}">
-                    <span class="text-[10px] font-mono"><b>${a.symbol}</b><br>${a.price}</span>
-                    <button onclick="deleteAlarm(${a.id})" class="text-red-700 font-bold text-[10px]">SİL</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteAlarm(id) {
-            alarmlar = alarmlar.filter(a => a.id !== id);
-            localStorage.setItem('ta_alarms', JSON.stringify(alarmlar));
-            renderAlarms();
-        }
-
-        // EVRENSEL FİYAT TAKİP MOTORU (Kripto + Forex/Endeks)
-        async function checkGlobalPrices() {
-            const logPanel = document.getElementById('priceLog');
-            
-            try {
-                // 1. Kripto (Binance)
-                const binanceRes = await fetch('https://api.binance.com/api/v3/ticker/price');
-                const binanceData = await binanceRes.json();
-
-                // 2. Forex & Endeks (Coinbase/Yahoo/Public API Simülasyonu - Güvenli Kanallar)
-                // Not: Ücretsiz ve üyeliksiz en hızlı erişim için Yahoo üzerinden simülatör
-                
-                alarmlar.forEach(alarm => {
-                    if(!alarm.active) return;
-                    
-                    let currentPrice = null;
-
-                    // Kripto kontrolü
-                    const bMatch = binanceData.find(p => p.symbol === alarm.symbol || p.symbol === (alarm.symbol + "USDT"));
-                    if(bMatch) {
-                        currentPrice = parseFloat(bMatch.price);
-                    }
-
-                    // Fiyat Kontrolü ve Tetikleme
-                    if(currentPrice) {
-                        const diff = Math.abs(currentPrice - alarm.price) / alarm.price;
-                        if(diff < 0.001) { 
-                            alarm.active = false;
-                            triggerAlarm(alarm.symbol);
-                            renderAlarms();
-                        }
-                    }
-                });
-
-            } catch (e) { console.log("Veri çekme hatası..."); }
-        }
-
-        function triggerAlarm(symbol) {
-            speak("Dikkat! " + symbol + " hedef fiyata geldi.");
-            document.getElementById('mainBody').classList.add('alarm-flash');
-            setTimeout(() => { document.getElementById('mainBody').classList.remove('alarm-flash'); }, 5000);
-        }
-
-        setInterval(checkGlobalPrices, 3000);
-
-        function changeLayout(n, btn) {
+        function setLayout(n, btn) {
             config.layout = n;
-            localStorage.setItem('ta_config', JSON.stringify(config));
-            document.querySelectorAll('.active-layout').forEach(b => b.classList.remove('active-layout'));
-            btn.classList.add('active-layout');
             document.getElementById('chart-grid').className = `grid-${n}`;
+            document.querySelectorAll('header button').forEach(b => b.classList.remove('active-btn'));
+            if(btn) btn.classList.add('active-btn');
             for (let i = 1; i <= 4; i++) {
                 const el = document.getElementById(`tv_${i}`);
-                if (i <= n) { el.classList.remove('hidden'); initChart(`tv_${i}`, config.symbol); }
+                if (i <= n) { el.classList.remove('hidden'); initTV(`tv_${i}`, config.symbol); }
                 else { el.classList.add('hidden'); el.innerHTML = ""; }
             }
         }
 
-        function toggleSidePanel() { document.getElementById('sidePanel').classList.toggle('closed'); }
+        function setSym(s) {
+            config.symbol = s;
+            for (let i = 1; i <= config.layout; i++) initTV(`tv_${i}`, s);
+        }
 
-        window.onload = () => {
-            changeLayout(config.layout, document.getElementById('btn-' + config.layout));
-            renderAlarms();
-        };
+        function addAlarm() {
+            const s = document.getElementById('aSym').value.toUpperCase() || config.symbol;
+            const p = parseFloat(document.getElementById('aPrc').value);
+            if(!p) return;
+            alarms.push({ id: Date.now(), sym: s, prc: p, active: true });
+            localStorage.setItem('v1_alarms', JSON.stringify(alarms));
+            drawAlarms();
+            speak(s + " alarmı kuruldu");
+        }
+
+        function drawAlarms() {
+            document.getElementById('list').innerHTML = alarms.map(a => `
+                <div class="bg-white/5 p-2 rounded flex justify-between items-center text-[11px] ${!a.active ? 'opacity-20' : ''}">
+                    <span><b>${a.sym.split(':')[1] || a.sym}</b>: ${a.prc}</span>
+                    <button onclick="delAlarm(${a.id})" class="text-red-500 font-bold">X</button>
+                </div>
+            `).join('');
+        }
+
+        function delAlarm(id) {
+            alarms = alarms.filter(a => a.id !== id);
+            localStorage.setItem('v1_alarms', JSON.stringify(alarms));
+            drawAlarms();
+        }
+
+        async function check() {
+            try {
+                const r = await fetch('https://api.binance.com/api/v3/ticker/price');
+                const d = await r.json();
+                alarms.forEach(a => {
+                    if(!a.active) return;
+                    const m = d.find(p => p.symbol === a.sym || p.symbol === (a.sym.split(':')[1] || a.sym) + "USDT");
+                    if(m && Math.abs(parseFloat(m.price) - a.prc) / a.prc < 0.0005) {
+                        a.active = false;
+                        speak(a.sym + " hedefte");
+                        drawAlarms();
+                    }
+                });
+            } catch(e) {}
+        }
+
+        setInterval(check, 4000);
+        function toggleSide() { document.getElementById('side').classList.toggle('closed'); }
+        window.onload = () => { setLayout(1); drawAlarms(); };
     </script>
 </body>
 </html>
