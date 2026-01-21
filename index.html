@@ -1,35 +1,41 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
 <meta charset="UTF-8">
 <title>TraderArmy Pro Platform</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://s3.tradingview.com/tv.js"></script>
 
 <style>
 
-/* =========================================================
-   SOFT PRO BLUE THEME
-   ========================================================= */
+/* ======================================================
+   SOFT PRO BLUE GLOBAL TEMA
+   ====================================================== */
+
 body{
     background:#0b1220;
     color:#dbe4ff;
     margin:0;
-    font-family:Arial;
+    font-family:Arial, sans-serif;
 }
 
-header, .toolbar, .alarm-box, footer, #newsTicker, #calendar-block{
+header, footer, .toolbar, .alarm-box, #newsTicker, #calendar-block{
     background:#111827;
     border-color:#1e293b;
 }
 
+/* GRAFİK KUTULARI */
 .chart-box{
     background:#0f172a;
     border:1px solid #1e293b;
     display:flex;
     flex-direction:column;
+    min-height:0;
 }
 
+/* SEÇİCİLER */
 button, select, input{
     background:#1e293b;
     color:#dbe4ff;
@@ -42,21 +48,49 @@ button:hover, select:hover{
     border-color:#3b82f6;
 }
 
-/* =========================================================
-   BÜYÜK GRAFİK FIX – KÜÇÜLMEYİ TAMAMEN YOK EDER
-   ========================================================= */
+/* ======================================================
+   4’LÜ KÜÇÜLME SORUNU TAM FIX
+   ====================================================== */
+
+/* Ana grid */
 #charts{
     display:grid;
-    height:calc(100vh - 120px); /* büyük grafik alanı */
+    height:calc(100vh - 120px) !important;
+    width:100%;
 }
 
+/* 1,2,4 mod için grid düzeni */
+body.layout-1 #charts{
+    grid-template-columns:1fr !important;
+    grid-template-rows:1fr !important;
+}
+body.layout-2 #charts{
+    grid-template-columns:1fr 1fr !important;
+    grid-template-rows:1fr !important;
+}
+body.layout-4 #charts{
+    grid-template-columns:1fr 1fr !important;
+    grid-template-rows:1fr 1fr !important;
+}
+
+/* 4'lü mod tam yüksek kutu */
+body.layout-4 .chart-box{
+    min-height:0 !important;
+    height:100% !important;
+}
+
+/* TradingView DIV boyut fix */
 .chart{
     width:100% !important;
     height:100% !important;
-    min-height:0;
+    min-height:0 !important;
+    flex:1;
 }
 
-/* HABER BANDI */
+/* ======================================================
+   HABER BANDI
+   ====================================================== */
+
 #newsTicker{
     height:38px;
     display:flex;
@@ -66,26 +100,27 @@ button:hover, select:hover{
 #newsTicker span{
     background:#b91c1c;
     padding:6px 12px;
-    margin-right:10px;
     font-weight:bold;
+    margin-right:10px;
 }
 #tickerContent{
-    color:#cdd6f4;
     white-space:nowrap;
+    color:#cdd6f4;
     animation:ticker 25s linear infinite;
 }
-
 @keyframes ticker{
     0%{transform:translateX(100%)}
     100%{transform:translateX(-100%)}
 }
 
-/* TOOLBAR & ALARM */
+/* TOOLBAR */
 .toolbar{
     padding:6px;
     display:flex;
     gap:6px;
 }
+
+/* ALARM */
 .alarm-box{
     padding:6px;
     display:flex;
@@ -94,10 +129,11 @@ button:hover, select:hover{
 .alarm-list{
     font-size:12px;
     border-top:1px solid #1e293b;
-    padding:6px;
     color:#cdd6f4;
+    padding:6px;
 }
 
+/* FOOTER */
 footer{
     text-align:center;
     padding:10px;
@@ -108,7 +144,7 @@ footer{
 </head>
 
 
-<body>
+<body class="layout-1">
 
 <!-- HABER BANDI -->
 <div id="newsTicker">
@@ -119,14 +155,16 @@ footer{
 <!-- HEADER -->
 <header>
     <strong style="font-size:18px;">TraderArmy</strong>
+
     <button onclick="setLayout(1)">1 Grafik</button>
     <button onclick="setLayout(2)">2 Grafik</button>
     <button onclick="setLayout(4)">4 Grafik</button>
-    <button onclick="toggleCalendar()">Takvim Aç/Kapa</button>
+
+    <button onclick="toggleCalendar()">Takvim Aç/Kapat</button>
 </header>
 
 <!-- TAKVİM -->
-<div id="calendar-block" style="display:block;">
+<div id="calendar-block">
     <div class="tradingview-widget-container" style="height:250px;">
         <div class="tradingview-widget-container__widget"></div>
         <script src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
@@ -147,22 +185,18 @@ footer{
 
 <!-- FOOTER -->
 <footer>
-⚠️ Yasal Uyarı: Bu site yatırım tavsiyesi içermez. Tüm risk kullanıcıya aittir.
+⚠️ Bu platform yatırım tavsiyesi değildir. Tüm risk kullanıcıya aittir.
 </footer>
-
 
 <script>
 
-/* ==========================
-   PARİTE LİSTESİ
-   ========================== */
+/* PARİTELER */
 const symbolsList = [
     "FX:EURUSD","FX:GBPUSD","FX:USDJPY","FX:XAUUSD","FX:USDTRY",
     "BINANCE:BTCUSDT","BINANCE:ETHUSDT","BINANCE:XRPUSDT",
     "OANDA:NAS100","OANDA:SPX500","OANDA:US30"
 ];
-
-const defaults = [
+const defaults=[
     "FX:EURUSD",
     "BINANCE:BTCUSDT",
     "OANDA:NAS100",
@@ -174,16 +208,8 @@ let calendarVisible=true;
 let alarms=JSON.parse(localStorage.getItem("alarms")||"[]");
 let chartSymbols=[];
 
-/* ==========================
-   HABER BANDI
-   ========================== */
-const tick=[
-"ABD TÜFE (CPI) açıklandı",
-"FED faiz kararı bekleniyor",
-"NFP Tarım Dışı istihdam geliyor",
-"ECB faiz açıklaması",
-"BOE faiz toplantısı"
-];
+/* HABER DÖNGÜ */
+const tick=["FED faiz beklentisi","ABD enflasyon verisi","NFP Tarım dışı","ECB toplantısı","Kripto piyasa hareketli"];
 let ti=0;
 function rot(){
     document.getElementById("tickerContent").innerText=tick[ti];
@@ -191,10 +217,7 @@ function rot(){
 }
 rot(); setInterval(rot,6000);
 
-
-/* ==========================
-   TAKVİM AÇ KAPA
-   ========================== */
+/* TAKVİM AÇ KAPA */
 function toggleCalendar(){
     const cal=document.getElementById("calendar-block");
     const ch=document.getElementById("charts");
@@ -211,10 +234,7 @@ function toggleCalendar(){
     setTimeout(()=>window.dispatchEvent(new Event("resize")),50);
 }
 
-
-/* ==========================
-   DROPDOWN
-   ========================== */
+/* DROPDOWN */
 function makeDropdown(i){
     let html="";
     for(const s of symbolsList){
@@ -224,50 +244,31 @@ function makeDropdown(i){
     return html;
 }
 
-
-/* ==========================
-   LAYOUT
-   ========================== */
+/* LAYOUT */
 function setLayout(n){
     layout=n;
+
+    document.body.classList.remove("layout-1","layout-2","layout-4");
+    document.body.classList.add("layout-"+n);
+
     render();
 }
 
-
-/* ==========================
-   GRAFİKLERİ OLUŞTUR
-   ========================== */
+/* RENDER GRAFİKLER */
 function render(){
     const area=document.getElementById("charts");
     area.innerHTML="";
-
-    if(layout===1){
-        area.style.gridTemplateColumns="1fr";
-        area.style.gridTemplateRows="1fr";
-    }
-    if(layout===2){
-        area.style.gridTemplateColumns="1fr 1fr";
-        area.style.gridTemplateRows="1fr";
-    }
-    if(layout===4){
-        area.style.gridTemplateColumns="1fr 1fr";
-        area.style.gridTemplateRows="1fr 1fr";
-    }
 
     for(let i=0;i<layout;i++){
         createBox(i);
     }
 
-    setTimeout(()=>window.dispatchEvent(new Event("resize")),80);
+    setTimeout(()=>window.dispatchEvent(new Event("resize")),100);
 }
 
-
-/* ==========================
-   BOX
-   ========================== */
+/* BOX */
 function createBox(i){
     const area=document.getElementById("charts");
-
     const box=document.createElement("div");
     box.className="chart-box";
 
@@ -292,7 +293,7 @@ function createBox(i){
     const al=document.createElement("div");
     al.className="alarm-box";
     al.innerHTML=`<input id="al${i}" placeholder="Alarm fiyat">
-                  <button onclick="addAlarm(${i})">+</button>`;
+        <button onclick="addAlarm(${i})">+</button>`;
 
     const list=document.createElement("div");
     list.className="alarm-list";
@@ -305,10 +306,7 @@ function createBox(i){
     refreshList(i);
 }
 
-
-/* ==========================
-   TRADINGVIEW WIDGET (AUTOSIZE YOK!)
-   ========================== */
+/* TRADINGVIEW */
 function loadChart(i){
     if(!chartSymbols[i]) chartSymbols[i]=defaults[i];
 
@@ -327,69 +325,31 @@ function loadChart(i){
     });
 }
 
-
-/* ==========================
-   PARİTE DEĞİŞTİR
-   ========================== */
+/* PARİTE & TF */
 function chgSym(i,v){
     chartSymbols[i]=v;
     render();
 }
-
 function chgTf(i,v){
     render();
 }
 
-/* ==========================
-   ALARM SİSTEMİ
-   ========================== */
+/* ALARM */
 function addAlarm(i){
     const sym=chartSymbols[i];
     const price=parseFloat(document.getElementById("al"+i).value);
-
     if(!price) return alert("Fiyat gir");
 
     alarms.push({sym,price});
     localStorage.setItem("alarms",JSON.stringify(alarms));
     refreshList(i);
 }
-
 function refreshList(i){
     const list=alarms.filter(a=>a.sym===chartSymbols[i]);
     document.getElementById("list"+i).innerHTML =
         list.map(a=>`${a.sym} → ${a.price}`).join("<br>");
 }
 
-/* ALARM KONTROL */
-async function checkA(){
-    for(const a of alarms){
-
-        if(a.sym.startsWith("BINANCE:")){
-            const p=a.sym.replace("BINANCE:","");
-            const j=await(await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${p}`)).json();
-            if(parseFloat(j.price)>=a.price) alertAlarm(a);
-        }
-
-        if(a.sym.startsWith("FX:")){
-            const p=a.sym.replace("FX:",""),
-                  base=p.slice(0,3),
-                  q=p.slice(3);
-
-            const j=await(await fetch(`https://api.exchangerate.host/latest?base=${base}&symbols=${q}`)).json();
-            if(j.rates[q]>=a.price) alertAlarm(a);
-        }
-    }
-}
-
-function alertAlarm(a){
-    alert(`ALARM! ${a.sym} → ${a.price}`);
-    new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
-}
-
-setInterval(checkA,5000);
-
-
-/* BAŞLAT */
 render();
 
 </script>
