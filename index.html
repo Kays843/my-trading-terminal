@@ -2,47 +2,52 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>TerminalPro</title>
+    <title>Terminal Pro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 
 <body>
 
-<div id="toolbar">
-    <div class="tool" data-tool="select">🔘</div>
+<!-- PARİTE SEÇME PANELİ -->
+<div id="pairs">
+    <!-- KRİPTO -->
+    <button onclick="loadSymbol('BTC-USD')">BTC</button>
+    <button onclick="loadSymbol('ETH-USD')">ETH</button>
+    <button onclick="loadSymbol('SOL-USD')">SOL</button>
 
+    <!-- FOREX -->
+    <button onclick="loadSymbol('EURUSD=X')">EUR/USD</button>
+    <button onclick="loadSymbol('GBPUSD=X')">GBP/USD</button>
+    <button onclick="loadSymbol('USDJPY=X')">USD/JPY</button>
+    <button onclick="loadSymbol('USDTRY=X')">USD/TRY</button>
+
+    <!-- ENDEKS -->
+    <button onclick="loadSymbol('^GSPC')">S&P500</button>
+    <button onclick="loadSymbol('^IXIC')">NASDAQ</button>
+    <button onclick="loadSymbol('^DJI')">DOW</button>
+</div>
+
+<!-- SOL TOOLBAR -->
+<div id="toolbar">
+    <div class="tool active" data-tool="select">🔘</div>
     <div class="tool" data-tool="line">／</div>
     <div class="tool" data-tool="brush">✏️</div>
     <div class="tool" data-tool="rect">▭</div>
     <div class="tool" data-tool="text">T</div>
-
-    <div class="tool" data-tool="fibo">𝜑</div>
-
-    <div class="tool" data-tool="long">📈</div>
-    <div class="tool" data-tool="short">📉</div>
 
     <div class="tool" id="undo">↩</div>
     <div class="tool" id="redo">↪</div>
     <div class="tool" id="delete">🗑</div>
 </div>
 
+<!-- GRAFİK -->
 <div id="chart"></div>
 
+<!-- ÇİZİM CANVAS -->
 <canvas id="drawCanvas"></canvas>
 
 <script src="main.js"></script>
 
 </body>
 </html>
-<button onclick="loadSymbol('BTC-USD')">BTC</button>
-<button onclick="loadSymbol('ETH-USD')">ETH</button>
-<button onclick="loadSymbol('SOL-USD')">SOL</button>
-
-<button onclick="loadSymbol('EURUSD=X')">EURUSD</button>
-<button onclick="loadSymbol('USDTRY=X')">USDTRY</button>
-<button onclick="loadSymbol('GBPUSD=X')">GBPUSD</button>
-
-<button onclick="loadSymbol('^GSPC')">S&P500</button>
-<button onclick="loadSymbol('^IXIC')">NASDAQ</button>
-<button onclick="loadSymbol('^DJI')">DOW</button>
