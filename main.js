@@ -1,3 +1,15 @@
+/* ============================================================
+    1) GRAFİK
+============================================================ */
+const chart = LightweightCharts.createChart(document.getElementById("chart"), {
+    layout:{background:{color:"#0d0f14"},textColor:"#d1d4dc"},
+    grid:{vertLines:{color:"#1c1f26"},horzLines:{color:"#1c1f26"}},
+});
+const candleSeries = chart.addCandlestickSeries();
+
+/* ============================================================
+    2) Yahoo Finance — Kripto + Forex + Endeks (TOKEN YOK)
+============================================================ */
 async function loadSymbol(symbol) {
 
     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1h&range=1mo`;
@@ -6,7 +18,6 @@ async function loadSymbol(symbol) {
     const data = await res.json();
 
     const result = data.chart.result[0];
-
     const timestamps = result.timestamp;
     const quotes = result.indicators.quote[0];
 
@@ -20,97 +31,25 @@ async function loadSymbol(symbol) {
 
     candleSeries.setData(candles);
 }
-/* ============================================================
-    1) GRAFİK — Lightweight Charts
-============================================================ */
-const chart = LightweightCharts.createChart(document.getElementById("chart"), {
-    layout:{background:{color:"#0d0f14"},textColor:"#d1d4dc"},
-    grid:{vertLines:{color:"#1c1f26"},horzLines:{color:"#1c1f26"}},
-    timeScale:{borderColor:"#1c1f26"},
-    rightPriceScale:{borderColor:"#1c1f26"},
-});
-const candleSeries = chart.addCandlestickSeries();
-
-/* ============================================================
-    2) KRİPTO VERİSİ — Binance API
-============================================================ */
-async function loadCrypto(symbol="BTCUSDT", interval="1h") {
-    const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=500`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const candles = data.map(k => ({
-        time: k[0] / 1000,
-        open: +k[1],
-        high: +k[2],
-        low: +k[3],
-        close: +k[4]
-    }));
-
-    candleSeries.setData(candles);
-}
-
-/* ============================================================
-    3) FOREX VERİSİ — TradingEconomics (Token Gerekmiyor)
-============================================================ */
-async function loadForex(symbol="EURUSD") {
-    const url = `https://api.tradingeconomics.com/markets/symbol/${symbol}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const prices = data.data[0].history;
-
-    const candles = prices.map(p => ({
-        time: Math.floor(new Date(p.date).getTime()/1000),
-        open: p.open,
-        high: p.high,
-        low: p.low,
-        close: p.close
-    }));
-
-    candleSeries.setData(candles);
-}
-
-/* ============================================================
-    4) ENDEKS VERİSİ — TradingEconomics (Token Gerekmiyor)
-============================================================ */
-async function loadIndex(symbol="SPX") {
-    const url = `https://api.tradingeconomics.com/markets/symbol/${symbol}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    const prices = data.data[0].history;
-
-    const candles = prices.map(p => ({
-        time: Math.floor(new Date(p.date).getTime()/1000),
-        open: p.open,
-        high: p.high,
-        low: p.low,
-        close: p.close
-    }));
-
-    candleSeries.setData(candles);
-}
 
 /* Varsayılan grafik */
-loadCrypto("BTCUSDT");
+loadSymbol("BTC-USD");
 
 /* ============================================================
-    5) CANVAS — ÇİZİM MOTORU BAŞLANGIÇ
+    3) ÇİZİM CANVAS
 ============================================================ */
 const canvas = document.getElementById("drawCanvas");
 const ctx = canvas.getContext("2d");
 
 function resizeCanvas(){
-    canvas.width = window.innerWidth - 50;
-    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth - 60;
+    canvas.height = window.innerHeight - 50;
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
 /* ============================================================
-    6) ÇİZİM MOTORU DURUMLARI
+    4) DURUMLAR
 ============================================================ */
 let tool = "select";
 let drawing = false;
@@ -122,7 +61,7 @@ let undoStack = [];
 let redoStack = [];
 
 /* ============================================================
-    7) TOOLBAR SEÇİM
+    5) TOOLBAR
 ============================================================ */
 document.querySelectorAll(".tool").forEach(btn=>{
     btn.onclick = () => {
@@ -133,7 +72,7 @@ document.querySelectorAll(".tool").forEach(btn=>{
 });
 
 /* ============================================================
-    8) POZİSYON / KOORDİNAT ALMA
+    6) KOORDİNAT
 ============================================================ */
 function pos(evt){
     const r = canvas.getBoundingClientRect();
@@ -144,11 +83,11 @@ function pos(evt){
 }
 
 /* ============================================================
-    9) ÇİZİM — OBJELERİ RENDER ETME
+    7) OBJELERİ ÇİZME
 ============================================================ */
 function drawObject(o){
     ctx.lineWidth = o.width || 2;
-    ctx.strokeStyle = selectedObj === o ? "#00ffff" : o.color || "#4ba3ff";
+    ctx.strokeStyle = selectedObj===o ? "#00ffff" : o.color || "#4ba3ff";
     ctx.fillStyle = o.fill || "#4ba3ff44";
 
     if(o.type==="line"){
@@ -158,8 +97,8 @@ function drawObject(o){
         ctx.stroke();
 
         if(selectedObj===o){
-            ctx.beginPath(); ctx.arc(o.x1,o.y1,5,0,6.28); ctx.fill();
-            ctx.beginPath(); ctx.arc(o.x2,o.y2,5,0,6.28); ctx.fill();
+            ctx.beginPath();ctx.arc(o.x1,o.y1,5,0,6.28);ctx.fill();
+            ctx.beginPath();ctx.arc(o.x2,o.y2,5,0,6.28);ctx.fill();
         }
     }
 
@@ -175,8 +114,8 @@ function drawObject(o){
     }
 
     if(o.type==="text"){
-        ctx.font = o.size+"px Arial";
-        ctx.fillStyle = o.color;
+        ctx.font=o.size+"px Arial";
+        ctx.fillStyle=o.color;
         ctx.fillText(o.text,o.x,o.y);
     }
 }
@@ -188,7 +127,7 @@ function redrawAll(){
 }
 
 /* ============================================================
-    10) TRENDLINE SEÇİM & TAŞIMA
+    8) TRENDLINE SEÇME
 ============================================================ */
 function near(x,y,a,b,dist=10){ return Math.hypot(x-a,y-b)<dist; }
 
@@ -213,7 +152,9 @@ canvas.addEventListener("touchstart",start);
 canvas.addEventListener("touchmove",move);
 canvas.addEventListener("touchend",end);
 
-
+/* ============================================================
+    9) ÇİZİM - START
+============================================================ */
 function start(e){
     const p = pos(e);
     drawing=true;
@@ -221,22 +162,25 @@ function start(e){
     const hit = hitTest(p.x,p.y);
 
     if(tool==="select" && hit){
-        selectedObj = hit.o;
-        dragMode = hit.hit;
+        selectedObj=hit.o;
+        dragMode=hit.hit;
         offsetX=p.x; offsetY=p.y;
         redrawAll();
         return;
     }
 
     if(tool==="line"){
-        current = {type:"line",x1:p.x,y1:p.y,x2:p.x,y2:p.y,color:"#4ba3ff"};
+        current={type:"line",x1:p.x,y1:p.y,x2:p.x,y2:p.y,color:"#4ba3ff"};
     }
+
     if(tool==="rect"){
-        current = {type:"rect",x1:p.x,y1:p.y,x2:p.x,y2:p.y,color:"#4ba3ff"};
+        current={type:"rect",x1:p.x,y1:p.y,x2:p.x,y2:p.y,color:"#4ba3ff"};
     }
+
     if(tool==="brush"){
-        current = {type:"brush",points:[{x:p.x,y:p.y}],color:"#4ba3ff"};
+        current={type:"brush",points:[{x:p.x,y:p.y}],color:"#4ba3ff"};
     }
+
     if(tool==="text"){
         const t = prompt("Metin:");
         if(t){
@@ -247,11 +191,14 @@ function start(e){
     }
 }
 
+/* ============================================================
+    10) MOVE
+============================================================ */
 function move(e){
     const p = pos(e);
 
     if(dragMode && selectedObj){
-        const dx=p.x-offsetX, dy=p.y-offsetY;
+        const dx=p.x-offsetX,dy=p.y-offsetY;
 
         if(dragMode==="p1"){
             selectedObj.x1+=dx; selectedObj.y1+=dy;
@@ -260,19 +207,23 @@ function move(e){
             selectedObj.x2+=dx; selectedObj.y2+=dy;
         }
 
-        offsetX=p.x; offsetY=p.y;
+        offsetX=p.x;
+        offsetY=p.y;
+
         redrawAll();
         return;
     }
 
-    if(!drawing||!current) return;
+    if(!drawing || !current) return;
 
     if(current.type==="line"){
         current.x2=p.x; current.y2=p.y;
     }
+
     if(current.type==="rect"){
         current.x2=p.x; current.y2=p.y;
     }
+
     if(current.type==="brush"){
         current.points.push({x:p.x,y:p.y});
     }
@@ -280,34 +231,40 @@ function move(e){
     redrawAll();
 }
 
+/* ============================================================
+    11) END
+============================================================ */
 function end(){
     if(dragMode){
         dragMode=null;
         return;
     }
+
     if(current){
         paths.push(current);
     }
-    current=null; drawing=false;
+
+    current=null;
+    drawing=false;
     redrawAll();
 }
 
 /* ============================================================
-    11) UNDO / REDO / DELETE
+    12) UNDO / REDO / DELETE
 ============================================================ */
-document.getElementById("undo").onclick=()=>{
+undo.onclick=()=>{
     if(paths.length>0){
         undoStack.push(paths.pop());
         redrawAll();
     }
 };
-document.getElementById("redo").onclick=()=>{
+redo.onclick=()=>{
     if(undoStack.length>0){
         paths.push(undoStack.pop());
         redrawAll();
     }
 };
-document.getElementById("delete").onclick=()=>{
+delete.onclick=()=>{
     if(selectedObj){
         paths = paths.filter(p=>p!==selectedObj);
         selectedObj=null;
